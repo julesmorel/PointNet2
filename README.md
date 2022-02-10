@@ -6,13 +6,14 @@
 See the official code release "PointNet++" for model definitions and hyper-parameters.
 The custom operations used by Pointnet++ are **ONLY** supported using CUDA.
 
-## Installation
+## Setup
 ### Requirements
 * Linux (tested on Ubuntu 21.10)
 * PCL 1.11
 * Python 3.9.7
 * PyTorch 1.10.2
 * CUDA Toolkit 11.3
+* Visdom
 
 ### Install
 Install this library by running the following command:
@@ -20,20 +21,20 @@ Install this library by running the following command:
 ./install.sh
 ```
 
-## Training
-### Data formatting
+## Dataset preparation
 Given TRAIN_DIR and VALIDATION_DIR, both directories containing the training data and the validation data respectively, format the input data by running:
 ```bash
 ./prepareData.sh TRAIN_DIR
 ./prepareData.sh VALIDATION_DIR
 ```
+
+## Training
 Edit train.sh to setup the parameters, then run:
 ```
 ./train.sh
 ```
 
 ## Inference
-
 ```bash
 ./predict.sh INPUT_FILE MODEL_PATH
 ```
