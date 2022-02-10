@@ -1,4 +1,4 @@
-# Pointnet2.PyTorch
+# Pointnet++ (PyTorch)
 
 * PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413) based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch) and [sshaoshuai/Pointnet2.PyTorch](https://github.com/sshaoshuai/Pointnet2.PyTorch).
 * Faster than the original codes by re-implementing the CUDA operations.
