@@ -20,10 +20,10 @@ python setup.py install
 cd ../
 ```
 
-### Training
+## Training
 Work in progress
 
-### Assertion
+## Assertion
 Work in progress
 
 ## Acknowledgement
