@@ -4,9 +4,9 @@ if [ "$1" ]; then
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc	
-  ./filterMinPoints/filterMinPoints $filename $minfile 0.1
+  filterMinPoints/filterMinPoints $filename $minfile 0.1
   pcafile=$dir/${root}_pca.asc
-  ../../Project/PCACompute/pca $minfile $pcafile 128
+  pca/pca $minfile $pcafile 128
   echo "* point cloud enrichment : OK"
   chunkedfile=$dir/${root}_chunked.asc
   counterfile=$dir/${root}_counter.asc
@@ -14,7 +14,7 @@ if [ "$1" ]; then
   batches/batches $pcafile $chunkedfile $counterfile $centerfile 1 1024 4
   echo "* batches division : OK"
   predfile=$dir/${root}_prediction.asc
-  python3 deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path --use_pca
+  python deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path --use_pca
   echo "* inference : OK"
   resultfile=$dir/${root}_result.asc
   vote/aggregate $predfile $counterfile $resultfile
