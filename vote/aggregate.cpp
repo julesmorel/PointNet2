@@ -134,7 +134,7 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points,
               classif=1;
           }
           int lab = labels.at(i);
-          outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<" "<<lab<<std::endl;
+          outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<" "<<pred0Ratio<<" "<<pred1Ratio<<std::endl;
         }
       }
     }

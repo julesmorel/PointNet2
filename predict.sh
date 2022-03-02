@@ -4,9 +4,9 @@ if [ "$1" ]; then
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc	
-  filterMinPoints/filterMinPoints $filename $minfile 0.1
+  filterMinPoints/filterMinPoints $filename $minfile 0.2
   pcafile=$dir/${root}_pca.asc
-  pca/pca $minfile $pcafile 128
+  pca/pca $minfile $pcafile 64
   echo "* point cloud enrichment : OK"
   chunkedfile=$dir/${root}_chunked.asc
   counterfile=$dir/${root}_counter.asc
