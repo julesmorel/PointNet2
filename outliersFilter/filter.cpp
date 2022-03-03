@@ -10,6 +10,8 @@
 
 #include <pcl/filters/statistical_outlier_removal.h>
 
+#include <pcl/filters/radius_outlier_removal.h>
+
 #include <sys/stat.h>
 
 void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points)
@@ -35,13 +37,16 @@ int main(int argc, char *argv[]){
   std::string filenameOut,filenameIn;
   int meanK = 50;
   double stddevMulThresh = 1.;
+  double radiusSearch=0.;
+  int MinNeighborsInRadius=10;
 
-  if (argc == 5) {
+  if (argc == 7) {
     filenameIn = argv[1];
     filenameOut = argv[2];
     meanK = std::stoi (argv[3]);
     stddevMulThresh = std::stod (argv[4]);
-    //std::cout<<"Processing file (wood) : "+filenameWood<<std::endl;
+    radiusSearch = std::stod (argv[5]);
+    MinNeighborsInRadius = std::stoi (argv[6]);
   }else{
     std::cout<<"Please specify a file to process"<<std::endl;
     exit(0);
@@ -50,6 +55,9 @@ int main(int argc, char *argv[]){
   pcl::PointCloud<pcl::PointXYZ> pts;
   readAsciiFile(filenameIn,pts);
   pcl::PointCloud<pcl::PointXYZ> ptsFiltered;
+  pcl::PointCloud<pcl::PointXYZ> ptsFilteredRadius;
+
+  std::cout<<"File read:"<<pts.size()<<std::endl;
 
   // Create the filtering object
   pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
@@ -58,11 +66,21 @@ int main(int argc, char *argv[]){
   sor.setStddevMulThresh (stddevMulThresh);
   sor.filter (ptsFiltered);
 
-std::ofstream outfile;
-outfile.open(filenameOut, std::ios_base::app);
+  std::cout<<pts.size()-ptsFiltered.size()<<" points filtered (StatisticalOutlierRemoval)"<<std::endl;
 
-for(int i=0;i<ptsFiltered.size();i++){
-    pcl::PointXYZ currentPt = ptsFiltered.at(i);
-    outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<std::endl;
+  pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;
+  outrem.setInputCloud(ptsFiltered.makeShared());
+  outrem.setRadiusSearch(0.5);
+  outrem.setMinNeighborsInRadius(500);
+  outrem.filter (ptsFilteredRadius);
+
+  std::cout<<ptsFiltered.size()-ptsFilteredRadius.size()<<" points filtered (RadiusOutlierRemoval)"<<std::endl;
+
+  std::ofstream outfile;
+  outfile.open(filenameOut, std::ios_base::app);
+
+  for(int i=0;i<ptsFilteredRadius.size();i++){
+      pcl::PointXYZ currentPt = ptsFilteredRadius.at(i);
+      outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<'\n';
   }
 }
