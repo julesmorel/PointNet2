@@ -3,7 +3,7 @@ if [ "$1" ]; then
   model_path=$2
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
-  minfile=$dir/${root}_min.asc	
+  minfile=$dir/${root}_min.asc
   filterMinPoints/filterMinPoints $filename $minfile 0.2
   pcafile=$dir/${root}_pca.asc
   pca/pca $minfile $pcafile 64
@@ -19,6 +19,11 @@ if [ "$1" ]; then
   resultfile=$dir/${root}_result.asc
   vote/aggregate $predfile $counterfile $resultfile
   echo "* vote : OK"
+  rm $pcafile
+  rm $chunkedfile
+  rm $counterfile
+  rm $centerfile
+  rm $predfile
 else
   echo Please provide a file to process
 fi

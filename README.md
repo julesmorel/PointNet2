@@ -30,8 +30,23 @@ Given TRAIN_DIR and VALIDATION_DIR, both directories containing the training dat
 
 ## Training
 Edit train.sh to setup the parameters, then run:
-```
+```bash
 ./train.sh
+```
+
+## Filtering
+As a preliminary step before the inference, filtering of the noise can be applied by a custom filter based on Statistical Outlier Removal and Radius Outlier Removal:
+```bash
+.outliersFilter/outliersFilter INPUT_FILE OUTPUT_FILE meanK stddevMulThresh radiusSearch minNeighborsInRadius
+```
+where:
+* INPUT_FILE and OUTPUT_FILE are the paths to the ascii file in input and output respectively.
+* meanK and stddevMulThresh are the number of neighbors to analyze for each point and the standard deviation multiplier.
+* radiusSearch is the sphere radius that is to be used for determining the k-nearest neighbors for filtering and minNeighborsInRadius is the minimum number of neighbors that a point needs to have in the given search radius in order to be considered an inlier.
+
+We usually use:
+```bash
+.outliersFilter/outliersFilter INPUT_FILE OUTPUT_FILE 128 1.0 1. 50
 ```
 
 ## Inference

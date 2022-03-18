@@ -8,8 +8,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-
 #include <pcl/filters/radius_outlier_removal.h>
 
 #include <sys/stat.h>
@@ -24,10 +24,12 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points)
       boost::split(results, line, [](char c){return c == ' ';});
 
       pcl::PointXYZ p;
+      try {
       p.x=std::stod (results.at(0));
       p.y=std::stod (results.at(1));
       p.z=std::stod (results.at(2));
       points.push_back(p);
+      } catch (const std::exception& e) {  }
     }
     file.close();
   }
@@ -54,12 +56,10 @@ int main(int argc, char *argv[]){
 
   pcl::PointCloud<pcl::PointXYZ> pts;
   readAsciiFile(filenameIn,pts);
-  pcl::PointCloud<pcl::PointXYZ> ptsFiltered;
-  pcl::PointCloud<pcl::PointXYZ> ptsFilteredRadius;
 
   std::cout<<"File read:"<<pts.size()<<std::endl;
 
-  // Create the filtering object
+  pcl::PointCloud<pcl::PointXYZ> ptsFiltered;
   pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
   sor.setInputCloud (pts.makeShared());
   sor.setMeanK (meanK);
@@ -68,10 +68,11 @@ int main(int argc, char *argv[]){
 
   std::cout<<pts.size()-ptsFiltered.size()<<" points filtered (StatisticalOutlierRemoval)"<<std::endl;
 
+  pcl::PointCloud<pcl::PointXYZ> ptsFilteredRadius;
   pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;
   outrem.setInputCloud(ptsFiltered.makeShared());
-  outrem.setRadiusSearch(0.5);
-  outrem.setMinNeighborsInRadius(500);
+  outrem.setRadiusSearch(radiusSearch);
+  outrem.setMinNeighborsInRadius(MinNeighborsInRadius);
   outrem.filter (ptsFilteredRadius);
 
   std::cout<<ptsFiltered.size()-ptsFilteredRadius.size()<<" points filtered (RadiusOutlierRemoval)"<<std::endl;
