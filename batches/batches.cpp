@@ -90,7 +90,7 @@
 
     //get a 2D projection of that point cloud
     pcl::PointCloud<pcl::PointXYZ> flatPoints = flattenPointCloud(pts);
-    std::cout<<"Points have been flatten"<<std::endl;
+    //std::cout<<"Points have been flatten"<<std::endl;
     printCloud("flat.xyz",flatPoints);
 
     //here we keep the average centers in XY plane
