@@ -14,7 +14,7 @@ if [ "$1" ]; then
   batches/batches $pcafile $chunkedfile $counterfile $centerfile 1 1024 4
   echo "* batches division : OK"
   predfile=$dir/${root}_prediction.asc
-  python deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path --use_pca
+  python deepNetwork/predict.py -i $chunkedfile -o $predfile -model $model_path --use_pca
   echo "* inference : OK"
   resultfile=$dir/${root}_result.asc
   vote/aggregate $predfile $counterfile $resultfile
