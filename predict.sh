@@ -1,7 +1,7 @@
 if [ "$1" ]; then
   scriptsroot=$(dirname $0)
   filename=$1
-  model_path=$2
+  if [ -f $2 ]; then model_path=$2; else model_path=$scriptsroot/$2; fi
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc
