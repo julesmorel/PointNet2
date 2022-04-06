@@ -20,6 +20,7 @@ if [ "$1" ]; then
   resultfile=$dir/${root}_result.asc
   $scriptsroot/vote/aggregate $predfile $counterfile $resultfile
   echo "* vote : OK"
+  rm $filterMinPoints
   rm $pcafile
   rm $chunkedfile
   rm $counterfile
