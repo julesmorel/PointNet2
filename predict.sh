@@ -17,7 +17,7 @@ if [ "$1" ]; then
   predfile=$dir/${root}_prediction.asc
   python $scriptsroot/deepNetwork/predict.py -i $chunkedfile -o $predfile -model $model_path --use_pca
   echo "* inference : OK"
-  resultfile=$dir/${root}_result.asc
+  resultfile=$dir/${root}_pointnet2.asc
   $scriptsroot/vote/aggregate $predfile $counterfile $resultfile
   echo "* vote : OK"
   rm $filterMinPoints
