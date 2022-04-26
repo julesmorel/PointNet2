@@ -37,12 +37,18 @@ parser.add_argument(
     default="model",
     help="Path to the model",
 )
+parser.add_argument(
+    "-num_points",
+    type=int,
+    default=1024,
+    help="Number of points in the batch",
+)
 parser.add_argument("--use_pca", action="store_true")
 parser.add_argument("--use_intensity", action="store_true")
 
 args = parser.parse_args()
 # Size of the batch
-num_points = 1024
+num_points = args.num_points
 # number of categories
 k = 2
 
