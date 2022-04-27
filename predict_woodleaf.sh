@@ -9,7 +9,7 @@ if [ "$1" ]; then
   chunkedfile=$dir/${root}_chunked.asc
   counterfile=$dir/${root}_counter.asc
   centerfile=$dir/${root}_centers.asc
-  batches_radius/batches $pcafile $chunkedfile $counterfile $centerfile 0.25 2048
+  batches_radius/batches $pcafile $chunkedfile $counterfile $centerfile 0.25 2048 4
   echo "* batches division : OK"
   predfile=$dir/${root}_prediction.asc
   python3 deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path -num_points 2048 --use_pca
