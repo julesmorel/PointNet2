@@ -114,6 +114,7 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points,
           int summedLabels=0;
           double sumPred0=0.;
           double sumPred1=0.;
+          double classifAveraged=0.;
           if(numberN>0){
             for( int j = 0; j< k_indices.size() ;j++){
               if(labelsPred.at(k_indices.at(j)) != -1)
@@ -123,18 +124,23 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points,
               }
               sumPred0+=pred0.at(k_indices.at(j));
               sumPred1+=pred1.at(k_indices.at(j));
+
+              if(pred1.at(k_indices.at(j))>pred0.at(k_indices.at(j))){
+                  classifAveraged+=1;
+              }
             }
           }
           float ratio = (float)summedLabels/(float)counter;
           double pred0Ratio = sumPred0/(double)numberOfPointsToFind;
           double pred1Ratio = sumPred1/(double)numberOfPointsToFind;
+          classifAveraged = classifAveraged/(double)numberOfPointsToFind;
 
           int classif=0;
           if(pred1Ratio>pred0Ratio){
               classif=1;
           }
           int lab = labels.at(i);
-          outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<" "<<pred0Ratio<<" "<<pred1Ratio<<std::endl;
+          outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<" "<<classifAveraged<<" "<<pred0Ratio<<" "<<pred1Ratio<<std::endl;
         }
       }
     }
