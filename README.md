@@ -31,7 +31,7 @@ Several pre-trained models are provided in this package, they are stored into th
     │   ├── terrain_segmentation  	  #   Terrain/Vegetation segmentation models 
 	│   │   ├── model_terrain_01_128  #     Fine model (2D grid resolution:10cm, N neighbors PCA:128) 
 	│   │   └── model_terrain_02_64   #     Coarse model (2D grid resolution:20cm, N neighbors PCA:64) 
-    │   └── wood_segmentation    	  #   Wood/leaves segmentation models 	
+    │   ├── wood_segmentation    	  #   Wood/leaves segmentation models 	
 	│   │   ├── model_seg_landes	  #     Model trained on vegetation from Landes (Radius PCA:5cm)	
 	│   │   ├── model_seg_sologne	  #     Model trained on vegetation from Sologne (Radius PCA:5cm)	
 	│   │   └── model_seg_vosges      #     Model trained on vegetation from Vosges (Radius PCA:5cm)						          
