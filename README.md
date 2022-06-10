@@ -21,6 +21,7 @@ Install this library by running the following command:
 ./install.sh
 ```  
 
+-----------------
 ## Segmentation
 Several pre-trained models are provided in this package, they are stored into the `models` folder.
 
@@ -50,6 +51,7 @@ where INPUT_FILE is the path to the file containing the point cloud to segment a
 ```
 where INPUT_FILE is the path to the file containing the point cloud to segment and MODEL_PATH is the path to the model used for the inference.  
 
+-----------------
 ## Additional steps
 Two additional computation steps have been implemented to improve the terrain segmentation results:
 1. a filtering method based on Statistical Outlier Removal and Radius Outlier Removal to clean the input point cloud 
@@ -85,6 +87,7 @@ We usually use:
 .clustering/clustering INPUT_FILE OUTPUT_FILE 0.2 10 10000000
 ```  
 
+-----------------
 ## Training of a custom model
 
 ### Dataset preparation
