@@ -33,7 +33,7 @@ Several pre-trained models are provided in this package, they are stored into th
     │   └── wood_segmentation    	  #   Wood/leaves segmentation models 	
 	│   │   ├── model_seg_landes	  #	    Model trained on vegetation from Landes (Radius PCA:5cm)	
 	│   │   ├── model_seg_sologne	  #	    Model trained on vegetation from Sologne (Radius PCA:5cm)	
-	│   │   └──	model_seg_vosges	  #	    Model trained on vegetation from Vosges (Radius PCA:5cm)						          
+	│   │   └── model_seg_vosges      #     Model trained on vegetation from Vosges (Radius PCA:5cm)						          
     └── ...
 
 * In order to segment the ground points from the vegetation points, first edit the parameters in `segment_terrain.sh` then call the script:
