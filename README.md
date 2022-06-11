@@ -1,5 +1,13 @@
-# Pointnet++ (PyTorch)
+# Segmentation based on Pointnet++ (PyTorch)
+Processing pipeline designed to segment point clouds acquired in forests. 
+It relies on both a geomteric and a deep learning approach to:
+1. identify the ground points on a complete TLS scan.
+2. separate the wood points from the leaves points on scanned trees.
+Those two features differs only by the initial filtering on the input point cloud and by the computation of the geometric local descritors:
+1. Segmentation ground points: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density unifrom so the local descriptors are computed with PCA amongst the K neighbors
+2. Segmentation woo points: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the nighbors in a sphere of given radius.
 
+* Geometric methods implemeted as a suite of independent C++ programs using PCL (https://pointclouds.org/)
 * PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413) based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch).
 * Code updated to run with CUDA Toolkit 11.3
 
@@ -14,6 +22,7 @@ The custom operations used by Pointnet++ are **ONLY** supported using CUDA.
 * PyTorch 1.10.2
 * CUDA Toolkit 11.3
 * Visdom
+* CloudCompare
 
 ## Install
 Install this library by running the following command:
@@ -73,13 +82,15 @@ We usually use:
 ```
 
 ### Clustering
-We observed that the usual segmentation errors result in small patch of points, clearly away from the main ground points cluster. To cope with this issue, we propose to retrieve the main cluster of points using the following script: 
+We observed that the usual segmentation errors result in small patch of points, clearly away from the main ground points cluster. 
+![screenshot](images/cluster.png?raw=true "clustering")
+To cope with this issue, we propose to retrieve the main cluster of points using the following script: 
 ```bash
 .clustering/clustering INPUT_FILE OUTPUT_FILE clusterTolerance minClusterSize maxClusterSize
 ```
 where:
 * INPUT_FILE and OUTPUT_FILE are the paths to the ascii file in input and output respectively.
-* clusterTolerance is the minimum distance between 2 clsuters
+* clusterTolerance is the minimum distance between 2 clusters
 * minClusterSize and maxClusterSize are the lower and upper limits of the clusters size
 
 We usually use:
