@@ -3,7 +3,9 @@ Processing pipeline designed to segment point clouds acquired in forests.
 It relies on both a geomteric and a deep learning approach to:
 1. identify the ground points on a complete TLS scan.
 2. separate the wood points from the leaves points on scanned trees.
+
 Those two features differs only by the initial filtering on the input point cloud and by the computation of the geometric local descritors:
+
 1. Segmentation ground points: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density unifrom so the local descriptors are computed with PCA amongst the K neighbors
 2. Segmentation woo points: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the nighbors in a sphere of given radius.
 
