@@ -8,7 +8,7 @@ This method relies on both a geometric and a deep learning approach to:
 1. Identify the ground points on a complete TLS scan ([Morel et al. 2020](https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20)).
 2. Separate the wood points from the leaves points on scanned trees ([Morel et al. 2020](https://link.springer.com/article/10.1007/s00371-020-01966-7)).
 
--
+---
 
 * Geometric tools implemented as a suite of independent C++ programs using [PCL](https://pointclouds.org/)
 * PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413) based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch).
@@ -55,14 +55,18 @@ while terrain and wood segmentation rely on a similar sequence of computanional 
 1. Segmentation ground points: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density unifrom so the local descriptors are computed with PCA amongst the K neighbors
 2. Segmentation wood points: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the nighbors in a sphere of given radius.
 	
-* In order to segment the ground points from the vegetation points, first edit the parameters in `segment_terrain.sh` then call the script:
+###	Segmentation of the ground points
+	
+In order to segment the ground points from the vegetation points, first edit the parameters in `segment_terrain.sh` then call the script:
 	
 ```bash
 ./segment_terrain.sh INPUT_FILE MODEL_PATH
 ```
 where INPUT_FILE is the path to the file containing the point cloud to segment and MODEL_PATH is the path to the model used for the inference.
 
-* In order to segment the wood from the leaves points, first edit the parameters in `segment_wood.sh` then call the script:
+###	Segmentation of the terrain points
+
+In order to segment the wood from the leaves points, first edit the parameters in `segment_wood.sh` then call the script:
 	
 ```bash
 ./segment_wood.sh INPUT_FILE MODEL_PATH
