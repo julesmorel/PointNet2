@@ -8,7 +8,9 @@ This method relies on both a geometric and a deep learning approach to:
 1. Identify the ground points on a complete TLS scan ([Morel et al. 2020](https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20)).
 2. Separate the wood points from the leaves points on scanned trees ([Morel et al. 2020](https://link.springer.com/article/10.1007/s00371-020-01966-7)).
 
----
+-----------------
+
+## Setup
 
 * Geometric tools implemented as a suite of independent C++ programs using [PCL](https://pointclouds.org/)
 * PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413) based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch).
@@ -17,7 +19,6 @@ This method relies on both a geometric and a deep learning approach to:
 See the official code release "PointNet++" for model definitions and hyper-parameters.
 The custom operations used by Pointnet++ are **ONLY** supported using CUDA.
 
-## Setup
 ### Requirements
 * Linux (tested on Ubuntu 21.10)
 * PCL 1.11
@@ -64,7 +65,7 @@ In order to segment the ground points from the vegetation points, first edit the
 ```
 where INPUT_FILE is the path to the file containing the point cloud to segment and MODEL_PATH is the path to the model used for the inference.
 
-###	Segmentation of the terrain points
+###	Segmentation of the wood points
 
 In order to segment the wood from the leaves points, first edit the parameters in `segment_wood.sh` then call the script:
 	
@@ -115,6 +116,8 @@ We usually use:
 
 -----------------
 ## Training of a custom model
+
+The library provides also several scritps to train new pytorch models. The data should be labelized point clouds stored in ASCII (4 columns: X Y Z label) and separated in 2 folders: training and validation.
 
 ### Dataset preparation
 Given TRAIN_DIR and VALIDATION_DIR, both directories containing the training data and the validation data respectively, format the input data by running:
