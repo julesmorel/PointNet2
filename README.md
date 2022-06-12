@@ -2,15 +2,15 @@
 Processing pipeline designed to segment point clouds acquired in forests. 
 
 It relies on both a geomteric and a deep learning approach to:
-1. identify the ground points on a complete TLS scan [Morel et al. 2020] (https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20).
-2. separate the wood points from the leaves points on scanned trees [Morel et al. 2020] (https://link.springer.com/article/10.1007/s00371-020-01966-7).
+1. identify the ground points on a complete TLS scan [Morel et al. 2020](https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20).
+2. separate the wood points from the leaves points on scanned trees [Morel et al. 2020](https://link.springer.com/article/10.1007/s00371-020-01966-7).
 
 While those two features rely on a similar sequence of computanional steps, they only differ by the initial filtering on the input point cloud and by the computation of the geometric local descritors:
 
 1. Segmentation ground points: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density unifrom so the local descriptors are computed with PCA amongst the K neighbors
 2. Segmentation wood points: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the nighbors in a sphere of given radius.
 
-* Geometric methods implemeted as a suite of independent C++ programs using [PCL] (https://pointclouds.org/)
+* Geometric methods implemeted as a suite of independent C++ programs using [PCL](https://pointclouds.org/)
 * PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413) based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch).
 * Code updated to run with CUDA Toolkit 11.3
 
