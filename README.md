@@ -57,6 +57,8 @@ while terrain and wood segmentation rely on a similar sequence of computanional 
 2. Segmentation wood points: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the nighbors in a sphere of given radius.
 	
 ###	Segmentation of the ground points
+
+![screenshot](images/terrain.jpg?raw=true "terrain")
 	
 In order to segment the ground points from the vegetation points, first edit the parameters in `segment_terrain.sh` then call the script:
 	
@@ -66,6 +68,8 @@ In order to segment the ground points from the vegetation points, first edit the
 where INPUT_FILE is the path to the file containing the point cloud to segment and MODEL_PATH is the path to the model used for the inference.
 
 ###	Segmentation of the wood points
+
+![screenshot](images/wood.jpg?raw=true "wood")
 
 In order to segment the wood from the leaves points, first edit the parameters in `segment_wood.sh` then call the script:
 	
