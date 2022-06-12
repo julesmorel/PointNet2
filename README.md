@@ -2,6 +2,7 @@
 
 **Processing pipeline designed to segment point clouds acquired in forests** 
 
+-----------------
 ## Overview
 
 This method relies on both a geometric and a deep learning approach to:
@@ -9,7 +10,6 @@ This method relies on both a geometric and a deep learning approach to:
 2. Separate the wood points from the leaves points on scanned trees ([Morel et al. 2020](https://link.springer.com/article/10.1007/s00371-020-01966-7)).
 
 -----------------
-
 ## Setup
 
 * Geometric tools implemented as a suite of independent C++ programs using [PCL](https://pointclouds.org/)
@@ -63,9 +63,9 @@ while terrain and wood segmentation rely on a similar sequence of computanional 
 In order to segment the ground points from the vegetation points, first edit the parameters in `segment_terrain.sh` then call the script:
 	
 ```bash
-./segment_terrain.sh INPUT_FILE MODEL_PATH
+./segment_terrain.sh INPUT_FILE_1 ... INPUT_FILE_N MODEL_PATH
 ```
-where INPUT_FILE is the path to the file containing the point cloud to segment and MODEL_PATH is the path to the model used for the inference.
+where INPUT_FILE_1 ... INPUT_FILE_N (N>=1) are the paths to the files containing the point clouds to segment and MODEL_PATH is the path to the model used for the inference.
 
 ###	Segmentation of the wood points
 

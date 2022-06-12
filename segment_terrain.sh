@@ -1,13 +1,17 @@
-if [ "$1" ]; then
+# Parameters
+RESOLUTION_XY=0.2
+K_PCA=64
+
+if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
   filename=$1
   if [ -f $2 ]; then model_path=$2; else model_path=$scriptsroot/$2; fi
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc
-  $scriptsroot/filterMinPoints/filterMinPoints $filename $minfile 0.2
+  $scriptsroot/filterListMinPoints/filterListMinPoints ${@:1:$#-1} $minfile $RESOLUTION_XY
   pcafile=$dir/${root}_pca.asc
-  $scriptsroot/pca/pca $minfile $pcafile 64
+  $scriptsroot/pca/pca $minfile $pcafile $K_PCA
   echo "* point cloud enrichment : OK"
   chunkedfile=$dir/${root}_chunked.asc
   counterfile=$dir/${root}_counter.asc
@@ -27,5 +31,5 @@ if [ "$1" ]; then
   rm $centerfile
   rm $predfile
 else
-  echo Please provide a file to process
+  echo Please provide at least a file to process and a model
 fi
