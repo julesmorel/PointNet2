@@ -117,7 +117,7 @@ We usually use:
 -----------------
 ## Training of a custom model
 
-The library provides also several scritps to train new pytorch models. The data should be labelized point clouds stored in ASCII (4 columns: X Y Z label) and separated in 2 folders: training and validation.
+The library provides also several scritps to train new pytorch models. The data should be labelized point clouds stored in ASCII files (4 columns: X Y Z label) and separated in 2 folders: training and validation.
 
 ### Dataset preparation
 Given TRAIN_DIR and VALIDATION_DIR, both directories containing the training data and the validation data respectively, format the input data by running:
