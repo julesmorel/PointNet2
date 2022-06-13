@@ -4,11 +4,17 @@
 #include <regex>
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory>
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <boost/algorithm/string.hpp>
 #include <pcl/filters/grid_minimum.h>
+#include <pdal/PointTable.hpp>
+#include <pdal/PointView.hpp>
+#include <pdal/io/LasHeader.hpp>
+#include <pdal/io/LasReader.hpp>
+#include <pdal/Options.hpp>
 
 //check if a string represent a number
 bool isNumber(std::string x){
@@ -51,6 +57,37 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points
   }
 }
 
+void readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
+{
+  pdal::Options options;
+  options.add("filename", filename);
+  pdal::PointTable table;
+  pdal::LasReader las_reader;
+  las_reader.setOptions(options);
+  las_reader.prepare(table);
+  pdal::PointViewSet point_view_set = las_reader.execute(table);
+  pdal::PointViewPtr point_view = *point_view_set.begin();
+  pdal::Dimension::IdList dims = point_view->dims();
+  pdal::LasHeader las_header = las_reader.header();
+
+  double offset_x = las_header.offsetX();
+  double offset_y = las_header.offsetY();
+  double offset_z = las_header.offsetZ();
+  std::cout<<"Offset "<<offset_x<<" "<<offset_y<<" "<<offset_z<<std::endl;
+
+  unsigned int n_features = las_header.pointCount();
+  std::cout<<"Reading "<<n_features<<" points"<<std::endl;
+  for (pdal::PointId idx = 0; idx < point_view->size(); ++idx) {
+    using namespace pdal::Dimension;
+    pcl::PointXYZI p;
+    p.x = point_view->getFieldAs<double>(Id::X, idx);
+    p.y = point_view->getFieldAs<double>(Id::Y, idx);
+    p.z = point_view->getFieldAs<double>(Id::Z, idx);
+    p.intensity=0.;
+    points.push_back(p);
+  }
+}
+
 int main(int argc, char *argv[]){
   std::vector<std::string> filenames;
   std::string filenameOut;
@@ -89,7 +126,19 @@ int main(int argc, char *argv[]){
   //concatenate every minimum points
   for(int i=0;i<filenames.size();i++){
     pcl::PointCloud<pcl::PointXYZI> pts;
-    readAsciiFile(filenames.at(i),pts);
+    std::string extension = filenames.at(i).substr(filenames.at(i).find_last_of(".") + 1);
+    if(extension == "las" || extension == "laz")
+    {
+      readLasFile(filenames.at(i),pts);
+    }
+    else if(extension == "xyz" || extension == "asc")
+    {
+      readAsciiFile(filenames.at(i),pts);
+    }else{
+      std::cout<<filenames.at(i)<<" is not in the correct format. Please provide .las, .laz or ASCII files"<<std::endl;
+      exit(0);
+    } 
+
     pcl::GridMinimum<pcl::PointXYZI> gm(res);
     gm.setInputCloud (pts.makeShared());
     pcl::PointCloud<pcl::PointXYZI> ptsMin;
