@@ -65,6 +65,7 @@ In order to segment the ground points from the vegetation points, first edit the
 ./segment_terrain.sh INPUT_FILE_1 ... INPUT_FILE_N MODEL_PATH
 ```
 where INPUT_FILE_1 ... INPUT_FILE_N (N>=1) are the paths to the files (las/laz/ascii) containing the point clouds to segment and MODEL_PATH is the path to the model used for the inference.
+**Note:** if the input files are in las/laz format, the offset related to the georeference translation is stored in `offset.txt` in the local folder. 
 
 ###	Segmentation of the wood points
 

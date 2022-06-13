@@ -9,6 +9,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <pcl/filters/grid_minimum.h>
 #include <pdal/PointTable.hpp>
 #include <pdal/PointView.hpp>
@@ -57,10 +58,11 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points
   }
 }
 
-void readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
+void readLasFile(std::string filename, double& offset_x, double& offset_y, pcl::PointCloud<pcl::PointXYZI>& points)
 {
   pdal::Options options;
   options.add("filename", filename);
+  options.add("override_srs","EPSG:4326");
   pdal::PointTable table;
   pdal::LasReader las_reader;
   las_reader.setOptions(options);
@@ -70,20 +72,24 @@ void readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
   pdal::Dimension::IdList dims = point_view->dims();
   pdal::LasHeader las_header = las_reader.header();
 
-  double offset_x = las_header.offsetX();
-  double offset_y = las_header.offsetY();
-  double offset_z = las_header.offsetZ();
-  std::cout<<"Offset "<<offset_x<<" "<<offset_y<<" "<<offset_z<<std::endl;
-
-  unsigned int n_features = las_header.pointCount();
-  std::cout<<"Reading "<<n_features<<" points"<<std::endl;
-  for (pdal::PointId idx = 0; idx < point_view->size(); ++idx) {
+  std::cout.precision(12);
+  //we consider the offset as the center of the first plot we process
+  if(offset_x==0. && offset_y==0.){
+    offset_x=0.5*las_header.minX()+0.5*las_header.maxX();
+    offset_y=0.5*las_header.minY()+0.5*las_header.maxY();
+    std::cout<<"Setting offset to : "<<offset_x<<" "<<offset_y<<std::endl;
+  }
+  
+  //because PCL encodes the points coordinates in float, we need to translate the point by a (-offset_x,-offset_y) vector
+  for (pdal::PointId idx = 0; idx < point_view->size(); ++idx) {  
     using namespace pdal::Dimension;
     pcl::PointXYZI p;
-    //std::cout<<point_view->getFieldAs<double>(Id::X, idx)<<" "<<point_view->getFieldAs<double>(Id::Y, idx)<<" "<<point_view->getFieldAs<double>(Id::Z, idx)<<std::endl;
-    p.x = point_view->getFieldAs<double>(Id::X, idx);
-    p.y = point_view->getFieldAs<double>(Id::Y, idx);
-    p.z = point_view->getFieldAs<double>(Id::Z, idx);
+    double x = point_view->getFieldAs<double>(Id::X, idx)-offset_x;
+    double y = point_view->getFieldAs<double>(Id::Y, idx)-offset_y;
+    double z = point_view->getFieldAs<double>(Id::Z, idx);
+    p.x=x;
+    p.y=y;
+    p.z=z;
     p.intensity=0.;
     points.push_back(p);
   }
@@ -123,6 +129,10 @@ int main(int argc, char *argv[]){
     res=std::stod(argv[argc-1]);
   }
 
+  //store the offset in X and Y if we deql with georeferenced las file
+  double offset_x=0.;
+  double offset_y=0.;
+
   pcl::PointCloud<pcl::PointXYZI> ptsOut;
   //concatenate every minimum points
   for(int i=0;i<filenames.size();i++){
@@ -130,7 +140,7 @@ int main(int argc, char *argv[]){
     std::string extension = filenames.at(i).substr(filenames.at(i).find_last_of(".") + 1);
     if(extension == "las" || extension == "laz")
     {
-      readLasFile(filenames.at(i),pts);
+      readLasFile(filenames.at(i),offset_x,offset_y,pts);
     }
     else if(extension == "xyz" || extension == "asc")
     {
@@ -145,6 +155,17 @@ int main(int argc, char *argv[]){
     pcl::PointCloud<pcl::PointXYZI> ptsMin;
     gm.filter(ptsMin);
     ptsOut+=ptsMin;
+  }
+
+  //if we process las/laz files, we save the offset
+  if(offset_x!=0. || offset_y!=0.){
+    boost::filesystem::path localFolder(filenameOut);
+    std::string offsetFileName = localFolder.parent_path().string() + boost::filesystem::path::preferred_separator + "offset.txt";
+    std::cout<<" Saving offset in "<<offsetFileName<<std::endl;
+    std::ofstream outfile;
+    outfile.open(offsetFileName, std::ios_base::app);
+    outfile<<offset_x<<" "<<offset_y<<std::endl;
+    outfile.close();
   }
 
   //get the minimum points of the concatenation
