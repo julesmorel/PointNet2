@@ -12,7 +12,7 @@ This method relies on both a geometric and a deep learning approach to:
 -----------------
 ## Setup
 
-* Geometric tools implemented as a suite of independent C++ programs using [PCL](https://pointclouds.org/)
+* Geometric tools implemented as a suite of independent C++ programs using [PCL](https://pointclouds.org/) and [PDAL](https://pdal.io)
 * PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413) based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch).
 * Code updated to run with CUDA Toolkit 11.3
 
@@ -20,13 +20,12 @@ See the official code release "PointNet++" for model definitions and hyper-param
 The custom operations used by Pointnet++ are **ONLY** supported using CUDA.
 
 ### Requirements
-* Linux (tested on Ubuntu 21.10)
+* Linux (tested on Ubuntu 20.04.4 LTS and 21.10)
 * PCL 1.11
+* PDAL 2.4.2 
 * Python 3.9.7
 * PyTorch 1.10.2
 * CUDA Toolkit 11.3
-* Visdom
-* CloudCompare
 
 ### Install
 Install this library by running the following command:
@@ -50,7 +49,7 @@ Several pre-trained models are provided in this package, they are stored into th
 	│   │   └── model_seg_vosges      #     Model trained on vegetation from Vosges (Radius PCA:5cm)						          
     └── ...
 	
-**For information purposes only:** 
+**For information purposes:** 
 while terrain and wood segmentation rely on a similar sequence of computanional steps, they only differ by the initial filtering on the input point cloud and by the computation of the geometric local descritors:
 
 1. Segmentation ground points: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density unifrom so the local descriptors are computed with PCA amongst the K neighbors
@@ -65,7 +64,7 @@ In order to segment the ground points from the vegetation points, first edit the
 ```bash
 ./segment_terrain.sh INPUT_FILE_1 ... INPUT_FILE_N MODEL_PATH
 ```
-where INPUT_FILE_1 ... INPUT_FILE_N (N>=1) are the paths to the files containing the point clouds to segment and MODEL_PATH is the path to the model used for the inference.
+where INPUT_FILE_1 ... INPUT_FILE_N (N>=1) are the paths to the files (las/laz/ascii) containing the point clouds to segment and MODEL_PATH is the path to the model used for the inference.
 
 ###	Segmentation of the wood points
 

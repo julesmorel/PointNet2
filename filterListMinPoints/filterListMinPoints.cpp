@@ -80,6 +80,7 @@ void readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
   for (pdal::PointId idx = 0; idx < point_view->size(); ++idx) {
     using namespace pdal::Dimension;
     pcl::PointXYZI p;
+    //std::cout<<point_view->getFieldAs<double>(Id::X, idx)<<" "<<point_view->getFieldAs<double>(Id::Y, idx)<<" "<<point_view->getFieldAs<double>(Id::Z, idx)<<std::endl;
     p.x = point_view->getFieldAs<double>(Id::X, idx);
     p.y = point_view->getFieldAs<double>(Id::Y, idx);
     p.z = point_view->getFieldAs<double>(Id::Z, idx);
