@@ -14,5 +14,6 @@ include_directories(${PDAL_INCLUDE_DIRS})
 link_directories(${PDAL_LIBRARY_DIRS})
 add_definitions(${PDAL_DEFINITIONS})
 
-add_executable (filterListMinPoints filterListMinPoints.cpp)
+include_directories(../util)
+add_executable (filterListMinPoints filterListMinPoints.cpp ../util/pointCloudFileReader.cpp)
 target_link_libraries (filterListMinPoints ${PCL_LIBRARIES} ${PDAL_LIBRARIES})
