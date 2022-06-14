@@ -52,10 +52,10 @@ Several pre-trained models are provided in this package, they are stored into th
 **For information purposes:** 
 while terrain and wood segmentation rely on a similar sequence of computanional steps, they only differ by the initial filtering on the input point cloud and by the computation of the geometric local descritors:
 
-1. Segmentation ground points: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density unifrom so the local descriptors are computed with PCA amongst the K neighbors
-2. Segmentation wood points: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the nighbors in a sphere of given radius.
+1. Ground points segmentation: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density unifrom so the local descriptors are computed with PCA amongst the K neighbors
+2. Wood points segmentation: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the nighbors in a sphere of given radius.
 	
-###	Segmentation of the ground points
+###	Ground points segmentation
 
 ![screenshot](images/terrain.jpg?raw=true "terrain")
 	
@@ -65,18 +65,21 @@ In order to segment the ground points from the vegetation points, first edit the
 ./segment_terrain.sh INPUT_FILE_1 ... INPUT_FILE_N MODEL_PATH
 ```
 where INPUT_FILE_1 ... INPUT_FILE_N (N>=1) are the paths to the files (las/laz/ascii) containing the point clouds to segment and MODEL_PATH is the path to the model used for the inference.
+
 **Note:** if the input files are in las/laz format, the offset related to the georeference translation is stored in `offset.txt` in the local folder. 
 
-###	Segmentation of the wood points
+###	Wood points segmentation 
 
 ![screenshot](images/wood.jpg?raw=true "wood")
 
 In order to segment the wood from the leaves points, first edit the parameters in `segment_wood.sh` then call the script:
 	
 ```bash
-./segment_wood.sh INPUT_FILE MODEL_PATH
+./segment_wood.sh INPUT_FILE_1 ... INPUT_FILE_N MODEL_PATH
 ```
-where INPUT_FILE is the path to the file containing the point cloud to segment and MODEL_PATH is the path to the model used for the inference.  
+where INPUT_FILE_1 ... INPUT_FILE_N (N>=1) are the paths to the files (las/laz/ascii) containing the point clouds to segment and MODEL_PATH is the path to the model used for the inference.
+
+**Note:** if the input files are in las/laz format, the offset related to the georeference translation is stored in `offset.txt` in the local folder.   
 
 -----------------
 ## Additional steps
