@@ -9,7 +9,7 @@ if [ "$#" -ge  2 ]; then
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc
-  $scriptsroot/filterListMinPoints/filterListMinPoints ${@:1:$#-1} $minfile $RESOLUTION_XY
+  $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $minfile 2D $RESOLUTION_XY
   pcafile=$dir/${root}_pca.asc
   $scriptsroot/pca/pca $minfile $pcafile $K_PCA
   echo "* point cloud enrichment : OK"
