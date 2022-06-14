@@ -1,10 +1,18 @@
-if [ "$1" ]; then
+# Parameters
+RESOLUTION=0.05
+R_PCA=0.05
+
+if [ "$#" -ge  2 ]; then
+  scriptsroot=$(dirname $0)
   filename=$1
-  model_path=$2
+  if [ -f $2 ]; then model_path=$2; else model_path=$scriptsroot/$2; fi
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
+  filteredfile=$dir/${root}_filtered.asc
+  $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $filteredfile 3D $RESOLUTION
+  echo "* point cloud reading : OK"
   pcafile=$dir/${root}_pca.asc
-  pca_radius/pca $filename $pcafile 0.05
+  pca_radius/pca $filename $pcafile $R_PCA
   echo "* point cloud enrichment : OK"
   chunkedfile=$dir/${root}_chunked.asc
   counterfile=$dir/${root}_counter.asc
