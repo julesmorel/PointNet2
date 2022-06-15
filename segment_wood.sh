@@ -5,7 +5,7 @@ R_PCA=0.05
 if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
   filename=$1
-  if [ -f $2 ]; then model_path=$2; else model_path=$scriptsroot/$2; fi
+  if [ -f $2 ]; then model_path=${@: -1}; else model_path=$scriptsroot/$2; fi
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   filteredfile=$dir/${root}_filtered.asc
