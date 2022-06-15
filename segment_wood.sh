@@ -1,6 +1,10 @@
 # Parameters
 RESOLUTION=0.05
 R_PCA=0.05
+X_MIN=0
+X_MAX=10000
+Y_MIN=0
+Y_MAX=10000
 
 if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
@@ -9,7 +13,7 @@ if [ "$#" -ge  2 ]; then
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   filteredfile=$dir/${root}_filtered.asc
-  $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $filteredfile 3D $RESOLUTION
+  $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $X_MIN $X_MAX $Y_MIN $Y_MAX $filteredfile 3D $RESOLUTION
   echo "* point cloud reading : OK"
   pcafile=$dir/${root}_pca.asc
   pca_radius/pca $filename $pcafile $R_PCA

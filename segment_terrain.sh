@@ -1,6 +1,10 @@
 # Parameters
 RESOLUTION_XY=0.2
 K_PCA=64
+X_MIN=0
+X_MAX=10000
+Y_MIN=0
+Y_MAX=10000
 
 if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
@@ -9,7 +13,7 @@ if [ "$#" -ge  2 ]; then
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc
-  $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $minfile 2D $RESOLUTION_XY
+  $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $X_MIN $X_MAX $Y_MIN $Y_MAX $minfile 2D $RESOLUTION_XY
   pcafile=$dir/${root}_pca.asc
   $scriptsroot/pca/pca $minfile $pcafile $K_PCA
   echo "* point cloud enrichment : OK"

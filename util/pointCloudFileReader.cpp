@@ -10,21 +10,21 @@
 
 #include <boost/algorithm/string.hpp>
 
-void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y){
+void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y, Extent limits){
     std::string extension = filename.substr(filename.find_last_of(".") + 1);
     if(extension == "las" || extension == "laz")
     {
-      readLasFile(filename,points,offset_x,offset_y);
+      readLasFile(filename,points,offset_x,offset_y,limits);
     }
     else if(extension == "xyz" || extension == "asc")
     {
-      readAsciiFile(filename,points);
+      readAsciiFile(filename,points,limits);
     }else{
       std::cout<<filename<<" is not in the correct format. Please provide .las, .laz or ASCII files"<<std::endl;
     } 
 }
 
-void pointCloudFileReader::readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
+void pointCloudFileReader::readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, Extent limits)
 {
   std::ifstream file(filename);
   if (file.is_open()) {
@@ -43,17 +43,17 @@ void pointCloudFileReader::readAsciiFile(std::string filename, pcl::PointCloud<p
       }else{
         p.intensity=0.;
       }
-      points.push_back(p);
+      //if the point is inside the extent, we save it
+      if(p.x>=limits.xMin && p.x<=limits.xMax && p.y>=limits.yMin && p.y<=limits.yMax)points.push_back(p);     
     }
     file.close();
   }
 }
 
-void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y)
+void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y, Extent limits)
 {
   pdal::Options options;
   options.add("filename", filename);
-  options.add("override_srs","EPSG:4326");
   pdal::PointTable table;
   pdal::LasReader las_reader;
   las_reader.setOptions(options);
@@ -75,13 +75,17 @@ void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl
   for (pdal::PointId idx = 0; idx < point_view->size(); ++idx) {  
     using namespace pdal::Dimension;
     pcl::PointXYZI p;
-    double x = point_view->getFieldAs<double>(Id::X, idx)-offset_x;
-    double y = point_view->getFieldAs<double>(Id::Y, idx)-offset_y;
-    double z = point_view->getFieldAs<double>(Id::Z, idx);
+    double fieldX=point_view->getFieldAs<double>(Id::X, idx);
+    double fieldY=point_view->getFieldAs<double>(Id::Y, idx);
+    double fieldZ=point_view->getFieldAs<double>(Id::Z, idx);
+    double x = fieldX-offset_x;
+    double y = fieldY-offset_y;
+    double z = fieldZ;
     p.x=x;
     p.y=y;
     p.z=z;
     p.intensity=0.;
-    points.push_back(p);
+    //if the point (before offsetting) is inside the extent, we save it
+    if(fieldX>=limits.xMin && fieldX<=limits.xMax && fieldY>=limits.yMin && fieldY<=limits.yMax)points.push_back(p);  
   }
 }

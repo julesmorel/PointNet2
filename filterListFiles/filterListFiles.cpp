@@ -32,19 +32,24 @@ bool fileExists (const std::string& name) {
 int main(int argc, char *argv[]){
   std::vector<std::string> filenames;
   std::string filenameOut;
+  Extent limits;
   std::string filteringType;
   float res=0.1;
   bool argsOk=true;
 
   //we need at least 3 args (+1 as the program name counts)
-  if (argc > 4) {
+  if (argc > 8) {
     //the first args must be existing files
     //the comes the output file name
     //the one before the last must be "2D" or "3D"
     //the last one must be a double
-    for(int i=1;i<argc-3;i++){
+    for(int i=1;i<argc-7;i++){
       argsOk=argsOk && fileExists(argv[i]);
     }
+    argsOk=argsOk && isNumber(argv[argc-7]);
+    argsOk=argsOk && isNumber(argv[argc-6]);
+    argsOk=argsOk && isNumber(argv[argc-5]);
+    argsOk=argsOk && isNumber(argv[argc-4]);
     argsOk=argsOk && !isNumber(argv[argc-3]);
     std::string tmp=argv[argc-2];
     argsOk=argsOk && (tmp=="2D" || tmp=="3D");
@@ -57,12 +62,16 @@ int main(int argc, char *argv[]){
   //otherwise we store the args and carry on
   if(!argsOk){
     std::cout<<"Please specify arguments in the following order:"<<std::endl;
-    std::cout<<"file_1 ... file_N output_file 2D(or 3D) resolution"<<std::endl;
+    std::cout<<"file_1 ... file_N xmin xmax ymin ymax output_file 2D(or 3D) resolution"<<std::endl;
     exit(0);
   }else{
-    for(int i=1;i<argc-3;i++){
+    for(int i=1;i<argc-7;i++){
       filenames.push_back(argv[i]);
     }
+    limits.xMin=std::stod(argv[argc-7]);
+    limits.xMax=std::stod(argv[argc-6]);
+    limits.yMin=std::stod(argv[argc-5]);
+    limits.yMax=std::stod(argv[argc-4]);
     filenameOut=argv[argc-3];
     filteringType=argv[argc-2];
     res=std::stod(argv[argc-1]);
@@ -76,7 +85,7 @@ int main(int argc, char *argv[]){
   //concatenate every minimum points
   for(int i=0;i<filenames.size();i++){
     pcl::PointCloud<pcl::PointXYZI> pts;
-    pointCloudFileReader::read(filenames.at(i),pts,offset_x,offset_y);
+    pointCloudFileReader::read(filenames.at(i),pts,offset_x,offset_y,limits);
     pcl::PointCloud<pcl::PointXYZI> ptsMin;
 
     if(filteringType=="2D"){
