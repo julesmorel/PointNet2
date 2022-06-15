@@ -6,14 +6,14 @@
 ## Overview
 
 This method relies on both a geometric and a deep learning approach to:
-1. Identify the ground points on a complete TLS scan ([Morel et al. 2020](https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20)).
-2. Separate the wood points from the leaves points on scanned trees ([Morel et al. 2020](https://link.springer.com/article/10.1007/s00371-020-01966-7)).
+1. Identify the ground points on a complete TLS scan [^1].
+2. Separate the wood points from the leaves points on scanned trees [^2].
 
 -----------------
 ## Setup
 
 * Geometric tools implemented as a suite of independent C++ programs using [PCL](https://pointclouds.org/) and [PDAL](https://pdal.io)
-* PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413) based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch).
+* PyTorch implementation of [PointNet++](https://arxiv.org/abs/1706.02413)[^3] based on [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch)[^4].
 * Code updated to run with CUDA Toolkit 11.3
 
 See the official code release "PointNet++" for model definitions and hyper-parameters.
@@ -141,6 +141,7 @@ Edit train.sh to setup the parameters, then run:
 ./train.sh
 ```
 
-## Acknowledgement
-* [charlesq34/pointnet2](https://github.com/charlesq34/pointnet2): Paper author and official code repo.
-* [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch): Initial work of PyTorch implementation of PointNet++.
+[^1] ([Morel et al. 2020](https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20)).
+[^2] ([Morel et al. 2020](https://link.springer.com/article/10.1007/s00371-020-01966-7)).
+[^3] [charlesq34/pointnet2](https://github.com/charlesq34/pointnet2): Paper author and official code repo.
+[^4] [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch): Initial work of PyTorch implementation of PointNet++.
