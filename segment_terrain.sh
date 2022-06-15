@@ -5,7 +5,7 @@ K_PCA=64
 if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
   filename=$1
-  if [ -f $2 ]; then model_path=$2; else model_path=$scriptsroot/$2; fi
+  if [ -f $2 ]; then model_path=${@: -1}; else model_path=$scriptsroot/$2; fi
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc
