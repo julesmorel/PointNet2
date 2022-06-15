@@ -68,7 +68,7 @@ where INPUT_FILE_1 ... INPUT_FILE_N (N>=1) are the paths to the files (las/laz/a
 
 **Note:** if the input files are in las/laz format, the offset related to the georeference translation is stored in `offset.txt` in the local folder. 
 
-###	Wood points segmentation 
+###	Wood points segmentation  
 
 ![screenshot](images/wood.jpg?raw=true "wood")
 
