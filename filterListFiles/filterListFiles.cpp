@@ -8,7 +8,6 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/filters/grid_minimum.h>
-#include <pcl/filters/voxel_grid.h>
 #include <boost/filesystem.hpp>
 
 #include "../util/pointCloudFileReader.h"
