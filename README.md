@@ -143,12 +143,13 @@ Edit train.sh to setup the parameters, then run:
 
 -----------------
 ## PDAL scripts
-For comparison purposes, we provide 3 PDAL scripts to crop hte input las,segment the ground points and then reconstruct the terrain surface.
+For comparison purposes, we provide 3 PDAL scripts to crop the input las,segment the ground points and then reconstruct the terrain surface.
 ```bash
 pdal translate INPUT_LAS CROPPED_LAS --json pdal_scripts/pipeline_crop.json
 pdal translate CROPPED_LAS GROUND_LAS --json pdal_scripts/pipeline_csf.json
 pdal translate GROUND_LAS SURFACE_PLY --json pdal_scripts/pipeline_poisson.json
 ```
+**Note**: Every files are las/laz, except the surface one which is in the ply format
 
 ## Acknowledgement
 * [charlesq34/pointnet2](https://github.com/charlesq34/pointnet2): Paper author and official code repo.
