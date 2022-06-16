@@ -82,23 +82,19 @@ int main(int argc, char *argv[]){
   double offset_y=0.;
 
   pcl::PointCloud<pcl::PointXYZI> ptsOut;
-  //concatenate every minimum points
+  //concatenate every point clouds provided
   for(int i=0;i<filenames.size();i++){
-    pcl::PointCloud<pcl::PointXYZI> pts;
-    pointCloudFileReader::read(filenames.at(i),pts,offset_x,offset_y,limits);
+    pcl::PointCloud<pcl::PointXYZI> pts;    
     pcl::PointCloud<pcl::PointXYZI> ptsMin;
-
     if(filteringType=="2D"){
+      pointCloudFileReader::read(filenames.at(i),pts,offset_x,offset_y,limits);
       pcl::GridMinimum<pcl::PointXYZI> gm(res);
       gm.setInputCloud (pts.makeShared());
       gm.filter(ptsMin);
     }else if(filteringType=="3D"){
-      pcl::VoxelGrid<pcl::PointXYZI> vox;
-      vox.setInputCloud (pts.makeShared());
-      vox.setLeafSize (res,res,res);
-      vox.filter (ptsMin);
+      pointCloudFileReader::read(filenames.at(i),pts,offset_x,offset_y,limits,res);
+      ptsMin=pts;
     }
-
     ptsOut+=ptsMin;
   }
 
@@ -115,19 +111,12 @@ int main(int argc, char *argv[]){
 
   //get the minimum points of the concatenation
   pcl::PointCloud<pcl::PointXYZI> ptsOutMin;
-  pcl::GridMinimum<pcl::PointXYZI> gm(res);
-  gm.setInputCloud (ptsOut.makeShared());
-  gm.filter(ptsOutMin);
-
   if(filteringType=="2D"){
       pcl::GridMinimum<pcl::PointXYZI> gm(res);
       gm.setInputCloud (ptsOut.makeShared());
       gm.filter(ptsOutMin);
   }else if(filteringType=="3D"){
-      pcl::VoxelGrid<pcl::PointXYZI> vox;
-      vox.setInputCloud (ptsOut.makeShared());
-      vox.setLeafSize (res,res,res);
-      vox.filter (ptsOutMin);
+      ptsOutMin=ptsOut;
   }
 
   //dump the points in the output file
