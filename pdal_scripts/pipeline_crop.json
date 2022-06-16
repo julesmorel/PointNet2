@@ -6,7 +6,7 @@
     },	
 	{
       "type":"filters.sample",
-      "radius":"0.01"
+      "radius":"0.1"
     }
   ]
 }
