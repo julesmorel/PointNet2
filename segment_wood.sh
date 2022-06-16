@@ -1,10 +1,10 @@
 # Parameters
-RESOLUTION=0.05
+RESOLUTION=0.005
 R_PCA=0.05
-X_MIN=0
-X_MAX=10000
-Y_MIN=0
-Y_MAX=10000
+X_MIN=-20
+X_MAX=20
+Y_MIN=-20
+Y_MAX=20
 
 if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
@@ -16,7 +16,7 @@ if [ "$#" -ge  2 ]; then
   $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $X_MIN $X_MAX $Y_MIN $Y_MAX $filteredfile 3D $RESOLUTION
   echo "* point cloud reading : OK"
   pcafile=$dir/${root}_pca.asc
-  pca_radius/pca $filename $pcafile $R_PCA
+  pca_radius/pca $filteredfile $pcafile $R_PCA
   echo "* point cloud enrichment : OK"
   chunkedfile=$dir/${root}_chunked.asc
   counterfile=$dir/${root}_counter.asc

@@ -7,11 +7,14 @@
 #include <pdal/io/LasHeader.hpp>
 #include <pdal/io/LasReader.hpp>
 #include <pdal/Options.hpp>
+#include <pdal/filters/CropFilter.hpp>
 
 #include <boost/algorithm/string.hpp>
 
-void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y, Extent limits){
-    std::string extension = filename.substr(filename.find_last_of(".") + 1);
+void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y, Extent limits)
+{    
+    std::cout<<"Reading "<<filename<<std::endl;    
+    std::string extension = filename.substr(filename.find_last_of(".") + 1);   
     if(extension == "las" || extension == "laz")
     {
       readLasFile(filename,points,offset_x,offset_y,limits);
@@ -57,6 +60,15 @@ void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl
   pdal::PointTable table;
   pdal::LasReader las_reader;
   las_reader.setOptions(options);
+
+  //TODO: crop using PDAL
+  // pdal::BOX2D dstBounds(limits.xMin, limits.yMin, limits.xMax, limits.yMax);
+  // pdal::Options cropOpts;
+  // cropOpts.add("bounds", dstBounds);
+  // pdal::CropFilter filter;
+  // filter.setOptions(cropOpts);
+  // filter.setInput(las_reader);
+
   las_reader.prepare(table);
   pdal::PointViewSet point_view_set = las_reader.execute(table);
   pdal::PointViewPtr point_view = *point_view_set.begin();
@@ -86,8 +98,7 @@ void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl
     p.x=x;
     p.y=y;
     p.z=z;
-    p.intensity=0.;
-    //if the point (before offsetting) is inside the extent, we save it
-    if(fieldX>=limits.xMin && fieldX<=limits.xMax && fieldY>=limits.yMin && fieldY<=limits.yMax)points.push_back(p);  
+    p.intensity=0.;   
+    if(fieldX>=limits.xMin && fieldX<=limits.xMax && fieldY>=limits.yMin && fieldY<=limits.yMax)points.push_back(p);     
   }
 }
