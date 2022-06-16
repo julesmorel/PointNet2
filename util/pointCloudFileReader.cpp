@@ -68,7 +68,9 @@ void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl
   if(offset_x==0. && offset_y==0.){
     offset_x=0.5*las_header.minX()+0.5*las_header.maxX();
     offset_y=0.5*las_header.minY()+0.5*las_header.maxY();
-    std::cout<<"Setting offset to : "<<offset_x<<" "<<offset_y<<std::endl;
+    if(offset_x!=0. || offset_y!=0.){
+      std::cout<<"Setting offset to : "<<offset_x<<" "<<offset_y<<std::endl;
+    }  
   }
   
   //because PCL encodes the points coordinates in float, we need to translate the point by a (-offset_x,-offset_y) vector
