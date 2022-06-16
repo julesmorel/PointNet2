@@ -1,0 +1,11 @@
+{
+  "pipeline":[
+	{
+		"type":"filters.poisson"
+    },
+	{
+        "type":"writers.ply",
+        "storage_mode":"little endian"
+    }
+  ]
+}

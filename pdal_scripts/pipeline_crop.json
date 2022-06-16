@@ -1,0 +1,12 @@
+{
+  "pipeline":[
+	{
+        "type":"filters.crop",
+        "bounds":"([-20,20],[-20,20])"
+    },	
+	{
+      "type":"filters.sample",
+      "radius":"0.01"
+    }
+  ]
+}

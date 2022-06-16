@@ -141,6 +141,15 @@ Edit train.sh to setup the parameters, then run:
 ./train.sh
 ```
 
+-----------------
+## PDAL scripts
+For comparison purposes, we provide 3 PDAL scripts to crop hte input las,segment the ground points and then reconstruct the terrain surface.
+```bash
+pdal translate INPUT_LAS CROPPED_LAS --json pdal_scripts/pipeline_crop.json
+pdal translate CROPPED_LAS GROUND_LAS --json pdal_scripts/pipeline_csf.json
+pdal translate GROUND_LAS SURFACE_PLY --json pdal_scripts/pipeline_poisson.json
+```
+
 ## Acknowledgement
 * [charlesq34/pointnet2](https://github.com/charlesq34/pointnet2): Paper author and official code repo.
 * [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch): Initial work of PyTorch implementation of PointNet++.

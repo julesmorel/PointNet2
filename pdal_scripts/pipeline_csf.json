@@ -1,0 +1,19 @@
+{
+  "pipeline":[
+	{
+      "type":"filters.assign",
+      "assignment":"Classification[:]=0"
+    },
+    {
+      "type":"filters.csf",
+	  "resolution":0.1,
+      "smooth":true,
+      "rigidness":3,
+	  "threshold":0.01
+    },
+    {
+      "type":"filters.range",
+      "limits":"Classification[2:2]"
+    }
+  ]
+}
