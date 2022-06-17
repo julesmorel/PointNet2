@@ -1,0 +1,19 @@
+{
+  "pipeline":[
+	{
+      "type":"filters.assign",
+      "assignment":"Classification[:]=0"
+    },
+    {
+        "type":"filters.smrf",
+        "scalar":1.2,
+        "slope":0.2,
+        "threshold":0.45,
+        "window":16.0
+    },
+    {
+        "type":"filters.range",
+        "limits":"Classification[2:2]"
+    }
+  ]
+}
