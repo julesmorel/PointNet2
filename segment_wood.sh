@@ -33,10 +33,7 @@ if [ "$#" -ge  2 ]; then
   echo "Merging input files"
   pointsMerged=$dir/all.laz
   pdal merge $listCroppedFiles $pointsMerged
-  for file in $listCroppedFiles
-  do
-    rm $file
-  done 
+  rm -r $listCroppedFiles
 
   #tile the point cloud
   echo "Tilling the extent"
@@ -52,22 +49,17 @@ if [ "$#" -ge  2 ]; then
           root=$(basename "${file%.*}")
           filteredfile=$dir/${root}_filtered.asc
           $scriptsroot/filterListFiles/filterListFiles $file $X_MIN $X_MAX $Y_MIN $Y_MAX $filteredfile 3D $RESOLUTION
-          #echo "* point cloud reading : OK"
           pcafile=$dir/${root}_pca.asc
           pca_radius/pca $filteredfile $pcafile $R_PCA
-          #echo "* point cloud enrichment : OK"
           chunkedfile=$dir/${root}_chunked.asc
           counterfile=$dir/${root}_counter.asc
           centerfile=$dir/${root}_centers.asc
           batches_radius/batches $pcafile $chunkedfile $counterfile $centerfile 0.25 2048 4
-          #echo "* batches division : OK"
           predfile=$dir/${root}_prediction.asc
           python3 deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path -num_points 2048 --use_pca
-          #echo "* inference : OK"
           resultfile=$dir/${root}_result.asc
           vote/aggregate $predfile $counterfile $resultfile
-          listResultFiles+=($resultfile)
-          #echo "* vote : OK"
+          listResultFiles+=($resultfile)       
           rm $predfile
           rm $counterfile
           rm $chunkedfile
@@ -77,8 +69,13 @@ if [ "$#" -ge  2 ]; then
           rm $file
       fi
   done
-  rm $pointsMerged
-  cat $listResultFiles >> $dir/result.xyz
+  rm $pointsMerged 
+  for file in $listResultFiles
+  do
+    cat $file >> $dir/result.xyz   
+  done 
+  rm -r $listResultFiles
+
 else
    echo Please provide a list of las/laz files and a Pytorch model
 fi   

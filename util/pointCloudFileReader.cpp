@@ -16,7 +16,7 @@
 
 void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y, Extent limits, double res_subsampling)
 {    
-    std::cout<<"Reading "<<filename<<std::endl;    
+    //std::cout<<"Reading "<<filename<<std::endl;    
     std::string extension = filename.substr(filename.find_last_of(".") + 1);   
     if(extension == "las" || extension == "laz")
     {
