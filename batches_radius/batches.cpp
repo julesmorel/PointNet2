@@ -109,7 +109,7 @@
                  }
              }
          }
-         outfileCenters <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<i<<std::endl;
+         outfileCenters <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<i<<'\n';
      }
 
      std::ofstream outfile;
@@ -117,7 +117,7 @@
      for(int i=0;i<ptsCloudChunks.size();i++){
         pcl::PointXYZ p = ptsCloudChunks.at(i);
         std::string label = labelsChunks.at(i);
-        outfile <<p.x<<" "<<p.y<<" "<<p.z<<label<<std::endl;
+        outfile <<p.x<<" "<<p.y<<" "<<p.z<<label<<'\n';
      }
 
      std::ofstream outfile2;
@@ -128,6 +128,6 @@
        std::vector<std::string> results;
        boost::split(results, labels.at(i), [](char c){return c == ' ';});
        int label = std::stoi(results.at(labelSpot));
-       outfile2<<p.x<<" "<<p.y<<" "<<p.z<<" "<<counter<<" "<<label<<std::endl;
+       outfile2<<p.x<<" "<<p.y<<" "<<p.z<<" "<<counter<<" "<<label<<'\n';
      }
 }
