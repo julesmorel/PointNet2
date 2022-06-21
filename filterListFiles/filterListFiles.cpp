@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
   //if we process las/laz files, we save the offset if it's not already saved
   if(!std::ifstream(offsetFileName)){
     if(offset_x!=0. || offset_y!=0.){
-      std::cout<<"Saving offset in "<<offsetFileName<<std::endl;
+      //std::cout<<"Saving offset in "<<offsetFileName<<std::endl;
       std::ofstream outfile;
       outfile.open(offsetFileName, std::ios_base::app);
       outfile<<offset_x<<" "<<offset_y<<std::endl;

@@ -20,7 +20,7 @@ def iter_loadtxt(filename, delimiter=' ', dtype=float):
 
 def loadPointsAndLabels(f,num_points,use_pca,use_intensity):
     path = os.path.dirname(os.path.realpath(__file__))
-    print("   reading file ",f)
+    #print("   reading file ",f)
     txt = iter_loadtxt(os.path.join(path, f))
     if use_pca:
         if use_intensity:
