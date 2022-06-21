@@ -79,13 +79,24 @@ for i in tqdm(range(li)):
     pred = model(torch.from_numpy(v_points).float().to(device))
     prednp = pred.cpu().detach().numpy()
     v_points = np.squeeze(v_points)
-    for j in range(v_points.shape[0]):
-        xs = data_pred2[i*num_points+j,0]
-        ys = data_pred2[i*num_points+j,1]
-        zs = data_pred2[i*num_points+j,2]
-        ind = 0
-        if prednp[0,j,0]<0:
-            ind = 1
-        line = ' '.join((str(xs), str(ys), str(zs), str(ind), str(prednp[0,j,0]), str(prednp[0,j,1])))
-        with open(args.o, "a") as myfile:
-            myfile.write("%s\n" % line)
+
+    arr_xs=[];
+    arr_ys=[];
+    arr_zs=[];
+    arr_p1=[];
+    arr_p2=[];
+
+    batch_size=v_points.shape[0];
+    arr_xs=data_pred2[i*num_points:i*num_points+batch_size,0]
+    arr_ys=data_pred2[i*num_points:i*num_points+batch_size,1]
+    arr_zs=data_pred2[i*num_points:i*num_points+batch_size,2]
+
+    arr_id=np.zeros(batch_size);
+    np.where(prednp[0,:,0]<0, arr_id, 1)
+
+    arr_p1=prednp[0,:,0]
+    arr_p2=prednp[0,:,1]
+
+    data = np.column_stack((np.array(arr_xs), np.array(arr_ys),np.array(arr_zs),arr_id,np.array(arr_p1),np.array(arr_p2)))
+    with open(args.o, "ab") as f:
+        np.savetxt(f,data, fmt=['%f','%f','%f','%i','%f','%f'])
