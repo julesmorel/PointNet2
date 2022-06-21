@@ -9,6 +9,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/filters/grid_minimum.h>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "../util/pointCloudFileReader.h"
 
@@ -76,9 +77,24 @@ int main(int argc, char *argv[]){
     res=std::stod(argv[argc-1]);
   }
 
-  //store the offset in X and Y if we deql with georeferenced las file
+  //store the offset in X and Y if we deal with georeferenced las file
   double offset_x=0.;
   double offset_y=0.;
+  //check if the offset file already exist and read it
+  boost::filesystem::path localFolder(filenameOut);
+  std::string offsetFileName = localFolder.parent_path().string() + boost::filesystem::path::preferred_separator + "offset.txt";
+  if(std::ifstream(offsetFileName)){
+    //std::cout<<"Reading offset in "<<offsetFileName<<std::endl;
+    std::ifstream file(offsetFileName);
+    if (file.is_open()) {
+      std::string line;
+      getline(file, line);
+      std::vector<std::string> results;
+      boost::split(results, line, [](char c){return c == ' ';});
+      offset_x=std::stod (results.at(0));
+      offset_y=std::stod (results.at(1));
+    }
+  }
 
   pcl::PointCloud<pcl::PointXYZI> ptsOut;
   //concatenate every point clouds provided
@@ -97,16 +113,17 @@ int main(int argc, char *argv[]){
     ptsOut+=ptsMin;
   }
 
-  //if we process las/laz files, we save the offset
-  if(offset_x!=0. || offset_y!=0.){
-    boost::filesystem::path localFolder(filenameOut);
-    std::string offsetFileName = localFolder.parent_path().string() + boost::filesystem::path::preferred_separator + "offset.txt";
-    std::cout<<"Saving offset in "<<offsetFileName<<std::endl;
-    std::ofstream outfile;
-    outfile.open(offsetFileName, std::ios_base::app);
-    outfile<<offset_x<<" "<<offset_y<<std::endl;
-    outfile.close();
+  //if we process las/laz files, we save the offset if it's not already saved
+  if(!std::ifstream(offsetFileName)){
+    if(offset_x!=0. || offset_y!=0.){
+      std::cout<<"Saving offset in "<<offsetFileName<<std::endl;
+      std::ofstream outfile;
+      outfile.open(offsetFileName, std::ios_base::app);
+      outfile<<offset_x<<" "<<offset_y<<std::endl;
+      outfile.close();
+    }
   }
+
 
   //get the minimum points of the concatenation
   pcl::PointCloud<pcl::PointXYZI> ptsOutMin;
