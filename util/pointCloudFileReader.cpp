@@ -2,35 +2,31 @@
 
 #include <memory>
 
-#include <pcl/filters/voxel_grid.h>
-
 #include <pdal/PointTable.hpp>
 #include <pdal/PointView.hpp>
 #include <pdal/io/LasHeader.hpp>
 #include <pdal/io/LasReader.hpp>
 #include <pdal/Options.hpp>
-#include <pdal/filters/CropFilter.hpp>
-#include <pdal/filters/SampleFilter.hpp>
 
 #include <boost/algorithm/string.hpp>
 
-void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y, Extent limits, double res_subsampling)
+void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y)
 {    
     //std::cout<<"Reading "<<filename<<std::endl;    
     std::string extension = filename.substr(filename.find_last_of(".") + 1);   
     if(extension == "las" || extension == "laz")
     {
-      readLasFile(filename,points,offset_x,offset_y,limits,res_subsampling);
+      readLasFile(filename,points,offset_x,offset_y);
     }
     else if(extension == "xyz" || extension == "asc")
     {
-      readAsciiFile(filename,points,limits,res_subsampling);
+      readAsciiFile(filename,points);
     }else{
       std::cout<<filename<<" is not in the correct format. Please provide .las, .laz or ASCII files"<<std::endl;
     } 
 }
 
-void pointCloudFileReader::readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, Extent limits, double res_subsampling)
+void pointCloudFileReader::readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
 {
   pcl::PointCloud<pcl::PointXYZI> pts;
   std::ifstream file(filename);
@@ -49,26 +45,14 @@ void pointCloudFileReader::readAsciiFile(std::string filename, pcl::PointCloud<p
         p.intensity=std::stod (results.at(3));
       }else{
         p.intensity=0.;
-      }
-      //if the point is inside the extent, we save it
-      if(p.x>=limits.xMin && p.x<=limits.xMax && p.y>=limits.yMin && p.y<=limits.yMax)pts.push_back(p);     
-    }
-
-    //if required, we subsample here
-    if(res_subsampling!=0.){
-      pcl::VoxelGrid<pcl::PointXYZI> vox;
-      vox.setInputCloud (pts.makeShared());
-      vox.setLeafSize (res_subsampling,res_subsampling,res_subsampling);
-      vox.filter (points);
-    }else{
-      points=pts;
-    }
-
+      }      
+      points.push_back(p);     
+    } 
     file.close();
   }
 }
 
-void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y, Extent limits, double res_subsampling)
+void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y)
 {
   //define the input file
   pdal::Options options;
@@ -77,29 +61,9 @@ void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl
   pdal::LasReader las_reader;
   las_reader.setOptions(options);
 
-  //Crop to the extent
-  pdal::BOX2D dstBounds(limits.xMin, limits.yMin, limits.xMax, limits.yMax);
-  pdal::Options cropOpts;
-  cropOpts.add("bounds", dstBounds);
-  pdal::CropFilter cropFilter;
-  cropFilter.setOptions(cropOpts);
-  cropFilter.setInput(las_reader);
-
-  //if required, we subsample here
-  pdal::PointViewSet point_view_set;
-  if(res_subsampling!=0.){
-    pdal::SampleFilter subsampling;
-    pdal::Options subOpts;
-    subOpts.add("radius", res_subsampling);
-    subsampling.setOptions(subOpts);
-    subsampling.setInput(cropFilter);
-    subsampling.prepare(table);
-    point_view_set = subsampling.execute(table);
-  }else{
-    cropFilter.prepare(table);
-    point_view_set = cropFilter.execute(table);
-  }
-
+  las_reader.prepare(table);
+  pdal::PointViewSet point_view_set = las_reader.execute(table);
+  
   //read the list of points
   pdal::PointViewPtr point_view = *point_view_set.begin();
   pdal::Dimension::IdList dims = point_view->dims();

@@ -1,19 +1,34 @@
 # Parameters
 RESOLUTION_XY=0.2
+RESOLUTION_XYZ=0.01
 K_PCA=64
-X_MIN=0
-X_MAX=10000
-Y_MIN=0
-Y_MAX=10000
+
+#Extent
+X_MIN=-0
+X_MAX=10
+Y_MIN=-0
+Y_MAX=10
 
 if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
   filename=$1
   if [ -f $2 ]; then model_path=${@: -1}; else model_path=$scriptsroot/$2; fi
+
+  #crop and subsample slightly every input file
+  echo "Cropping input files"
+  for file in ${@:1:$#-1}
+  do
+    dir=$(dirname "$file")
+    root=$(basename "${file%.*}")
+    croppedFile=$dir/${root}cropped.laz
+    pdal pipeline $PDAL_FOLDER/crop.json --writers.las.filename=$croppedFile --readers.las.filename=$file --filters.crop.bounds="([$X_MIN,$X_MAX],[$Y_MIN,$Y_MAX])" --filters.sample.radius="$RESOLUTION_XYZ"
+    listCroppedFiles+=("$croppedFile")
+  done
+
   dir=$(dirname "$filename")
   root=$(basename "${filename%.*}")
   minfile=$dir/${root}_min.asc
-  $scriptsroot/filterListFiles/filterListFiles ${@:1:$#-1} $X_MIN $X_MAX $Y_MIN $Y_MAX $minfile 2D $RESOLUTION_XY
+  $scriptsroot/filterListFiles/filterListFiles ${listCroppedFiles[@]} $minfile $RESOLUTION_XY
   pcafile=$dir/${root}_pca.asc
   $scriptsroot/pca/pca $minfile $pcafile $K_PCA
   echo "* point cloud enrichment : OK"
@@ -35,5 +50,5 @@ if [ "$#" -ge  2 ]; then
   rm $centerfile
   rm $predfile
 else
-  echo Please provide at least a file to process and a model
+  echo "Please provide at least a file to process and a model"
 fi
