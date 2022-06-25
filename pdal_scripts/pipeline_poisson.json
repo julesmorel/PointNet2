@@ -1,11 +1,15 @@
-{
-  "pipeline":[
+[
+	{
+		"type":"readers.las",
+		"filename":"data/all_ground.laz"
+	},
 	{
 		"type":"filters.poisson"
-    },
+	},
 	{
-        "type":"writers.ply",
-		"faces":true
-    }
-  ]
-}
+		"type":"writers.ply",
+		"dims":"X=float,Y=float,Z=float",
+		"faces":true,
+		"filename":"data/surface.ply"
+	}
+]
