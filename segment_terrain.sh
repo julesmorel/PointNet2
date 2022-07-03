@@ -9,6 +9,9 @@ X_MAX=10
 Y_MIN=-0
 Y_MAX=10
 
+#Folder PDAL script
+PDAL_FOLDER="pdal_scripts"
+
 if [ "$#" -ge  2 ]; then
   scriptsroot=$(dirname $0)
   filename=$1
