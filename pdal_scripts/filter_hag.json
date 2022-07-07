@@ -1,0 +1,11 @@
+{
+  "pipeline":[
+    "input.las",
+    {
+      "type":"filters.dem",
+      "raster":"dem.tif",
+      "limits":"Z[-1:25]"
+    },
+    "placeholder.laz"
+  ]
+}

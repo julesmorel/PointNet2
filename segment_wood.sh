@@ -3,10 +3,14 @@ RESOLUTION=0.005
 R_PCA=0.05
 
 #Extent
-X_MIN=-0
-X_MAX=10
-Y_MIN=-0
-Y_MAX=10
+X_MIN=-20
+X_MAX=20
+Y_MIN=-20
+Y_MAX=20
+
+#Size of the slice in Z (in order to remove the ground points)
+ZMIN=1
+ZMAX=25
 
 #Max number of points in tile
 MaxNumberPoint=500000
@@ -14,20 +18,25 @@ MaxNumberPoint=500000
 #Folder PDAL script
 PDAL_FOLDER="pdal_scripts"
 
-if [ "$#" -ge  2 ]; then
+if [ "$#" -ge  3 ]; then
   scriptsroot=$(dirname $0)
-  if [ -f $2 ]; then model_path=${@: -1}; else model_path=$scriptsroot/$2; fi  
+  if [ -f ${@: -1} ]; then model_path=${@: -1}; else model_path=$scriptsroot/${@: -1}; fi  
+
+  array=( $@ )
+  len=${#array[@]}
+  dtm_path=${array[$len-2]}
+  echo $dtm_path
 
   #crop and subsample slightly every input file
   echo "Cropping input files"
-  for file in ${@:1:$#-1}
+  for file in ${@:1:$#-2}
   do
     dir=$(dirname "$file")
     root=$(basename "${file%.*}")
     croppedFile=$dir/${root}cropped.laz
     pdal pipeline $PDAL_FOLDER/crop.json --writers.las.filename=$croppedFile --readers.las.filename=$file --filters.crop.bounds="([$X_MIN,$X_MAX],[$Y_MIN,$Y_MAX])" --filters.sample.radius="$RESOLUTION"
     listCroppedFiles+=("$croppedFile")
-  done
+  done 
 
   #merge every cropped file
   echo "Merging input files"
@@ -36,12 +45,19 @@ if [ "$#" -ge  2 ]; then
   for file in ${listCroppedFiles[@]}
   do
     rm $file 
-  done 
+  done  
 
-  #tile the point cloud
+  echo "Subsampling the merge"
+  pointsMergedSub=$dir/allSub.laz
+  pdal pipeline $PDAL_FOLDER/crop.json --writers.las.filename=$pointsMergedSub --readers.las.filename=$pointsMerged --filters.crop.bounds="([$X_MIN,$X_MAX],[$Y_MIN,$Y_MAX])" --filters.sample.radius="$RESOLUTION"
+
+  echo "Removing ground points"
+  pointsMergedSubNoGround=$dir/allSubNoGround.laz
+  pdal pipeline $PDAL_FOLDER/filter_hag.json --writers.las.filename=$pointsMergedSubNoGround --readers.las.filename=$pointsMergedSub --filters.dem.raster=$dtm_path --filters.dem.limits="Z[-$ZMIN:$ZMAX]"
+
   echo "Tilling the extent"
   pointsTile=$dir/tile.laz
-  pdal split --capacity $MaxNumberPoint $pointsMerged $pointsTile
+  pdal split --capacity $MaxNumberPoint $pointsMergedSubNoGround $pointsTile
 
   echo "Processing the tiles one by one ..."
   for file in $dir/tile*
@@ -79,5 +95,5 @@ if [ "$#" -ge  2 ]; then
     rm $file
   done 
 else
-   echo "Please provide a list of las/laz files and a Pytorch model"
+   echo "Please provide a list of las/laz files, a dtm raster and a Pytorch model"
 fi   
