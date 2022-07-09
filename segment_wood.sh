@@ -1,19 +1,19 @@
 # Parameters
-RESOLUTION=0.005
+RESOLUTION=0.01
 R_PCA=0.05
 
 #Extent
-X_MIN=-10
-X_MAX=10
-Y_MIN=-10
-Y_MAX=10
+X_MIN=-20
+X_MAX=20
+Y_MIN=-20
+Y_MAX=20
 
 #Size of the slice in Z (in order to remove the ground points)
 ZMIN=1
 ZMAX=25
 
 #Max number of points in tile
-MaxNumberPoint=500000
+MaxNumberPoint=300000
 
 #Folder PDAL script
 PDAL_FOLDER="pdal_scripts"
@@ -44,23 +44,23 @@ if [ "$#" -ge  3 ]; then
     pdal split --capacity $MaxNumberPoint $croppedFileNoGround $pointsTile
     rm $croppedFileNoGround
 
-    for file in $dir/tile*
+    for tile in $dir/tile*
     do
-        if [[ -f $file ]]; then
-            echo $file
-            dir=$(dirname "$file")
-            root=$(basename "${file%.*}")
-            filteredfile=$dir/${root}_filtered.asc
-            $scriptsroot/las2pcl/las2pcl $file $filteredfile
-            pcafile=$dir/${root}_pca.asc
+        if [[ -f $tile ]]; then
+            echo "   " $tile
+            dir_tile=$(dirname "$tile")
+            root_tile=$(basename "${tile%.*}")
+            filteredfile=$dir_tile/${root_tile}_filtered.asc
+            $scriptsroot/las2pcl/las2pcl $tile $filteredfile
+            pcafile=$dir_tile/${root_tile}_pca.asc
             $scriptsroot/pca_radius/pca $filteredfile $pcafile $R_PCA
-            chunkedfile=$dir/${root}_chunked.asc
-            counterfile=$dir/${root}_counter.asc
-            centerfile=$dir/${root}_centers.asc
-            $scriptsroot/batches_radius/batches $pcafile $chunkedfile $counterfile $centerfile 0.2 2048 4
-            predfile=$dir/${root}_prediction.asc
+            chunkedfile=$dir_tile/${root_tile}_chunked.asc
+            counterfile=$dir_tile/${root_tile}_counter.asc
+            centerfile=$dir_tile/${root_tile}_centers.asc
+            $scriptsroot/batches_radius/batches $pcafile $chunkedfile $counterfile $centerfile 0.3 2048 4
+            predfile=$dir_tile/${root_tile}_prediction.asc
             python3 $scriptsroot/deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path -num_points 2048 --use_pca
-            resultfile=$dir/${root}_result.asc
+            resultfile=$dir_tile/${root_tile}_result.asc
             $scriptsroot/vote/aggregate $predfile $counterfile $resultfile
             listResultFiles+=($resultfile)       
             rm $predfile
@@ -69,23 +69,24 @@ if [ "$#" -ge  3 ]; then
             rm $centerfile
             rm $pcafile
             rm $filteredfile
-            rm $file
+            rm $tile
         fi
     done
 
-    resultFile=$dir/${root}result.xyz   
-    for file in ${listResultFiles[@]}
+    resultFileMerge=$dir/${root}result.xyz   
+    for fileResult in ${listResultFiles[@]}
     do
-      cat $file >> $resultFile   
-      rm $file
+      cat $fileResult >> $resultFileMerge   
+      rm $fileResult
     done 
-    listCroppedFiles+=("$resultFile")
+    echo "   Append results in " $resultFileMerge
+    listResultFilesMerged+=("$resultFileMerge")
 
   done 
 
   pointsMerged=$dir/result.xyz
-  $scriptsroot/merge/merge ${listCroppedFiles[@]} $pointsMerged
-  for file in ${listCroppedFiles[@]}
+  $scriptsroot/merge/merge ${listResultFilesMerged[@]} $pointsMerged
+  for file in ${listResultFilesMerged[@]}
   do
     rm $file 
   done  
