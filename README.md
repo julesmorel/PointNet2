@@ -40,15 +40,15 @@ Several pre-trained models are provided in this package, they are stored into th
     .
     ├── ...
     ├── models                    	             # Pytorch models file
-    │   ├── terrain_segmentation  	             #   Terrain/Vegetation segmentation models
-	│   │   ├── model_terrain_01_128               #     Fine model (2D grid resolution:10cm, N neighbors PCA:128)
-	│   │   └── model_terrain_02_64                #     Coarse model (2D grid resolution:20cm, N neighbors PCA:64)
-    │   ├── wood_segmentation    	               #   Wood/leaves segmentation models 	
-	│   │   ├── model_seg_landes_pca5cm	           #     Model trained on vegetation from Landes (Radius PCA:5cm)
-  │   │   ├── model_seg_landes_pca10cm	         #     Model trained on vegetation from Landes (Radius PCA:10cm)
-  │   │   ├── model_seg_landes_low_pca5cm	       #     Model trained on smaller trees from Landes (Radius PCA:5cm)
-	│   │   ├── model_seg_sologne	                 #     Model trained on vegetation from Sologne (Radius PCA:5cm)
-	│   │   └── model_seg_vosges                   #     Model trained on vegetation from Vosges (Radius PCA:5cm)						          
+    │   ├── terrain_segmentation  	             #  Terrain/Vegetation segmentation models
+	  │   │   ├── model_terrain_01_128             #   Fine model (2D grid resolution:10cm, N neighbors PCA:128)
+	  │   │   └── model_terrain_02_64              #   Coarse model (2D grid resolution:20cm, N neighbors PCA:64)
+    │   ├── wood_segmentation    	               #  Wood/leaves segmentation models 	
+	  │   │   ├── model_seg_landes_pca5cm	         #   Model trained on vegetation from Landes (Radius PCA:5cm)
+    │   │   ├── model_seg_landes_pca10cm	       #   Model trained on vegetation from Landes (Radius PCA:10cm)
+    │   │   ├── model_seg_landes_low_pca5cm	     #   Model trained on smaller trees from Landes (Radius PCA:5cm)
+	  │   │   ├── model_seg_sologne	               #   Model trained on vegetation from Sologne (Radius PCA:5cm)
+	  │   │   └── model_seg_vosges                 #   Model trained on vegetation from Vosges (Radius PCA:5cm)						          
     └── ...
 
 For both terrain and wood points segmentation, the method follows the steps described in ([Morel et al. 2020](https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20)):
@@ -61,8 +61,8 @@ For both terrain and wood points segmentation, the method follows the steps desc
 **Note:**
 The initial filtering on the input point cloud and by the computation of the geometric local descriptors differ for both segmentation problem:
 
-- Ground points segmentation: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density uniform so the local descriptors are computed with PCA amongst the K neighbors
-- Wood points segmentation: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the neighbors in a sphere of given radius.
+- _Ground points segmentation_: filtering of the input scan through a coarse 2D XY grid (~10cm), which tends to make the point density uniform so the local descriptors are computed with PCA amongst the K neighbors
+- _Wood points segmentation_: filtering of the input scan through a fine 3D grid (0.5cm). As the point density stays non uniform the local descriptors are computed with PCA considering the neighbors in a sphere of given radius.
 
 
 The processing of complete LiDAR multi-scans have revealed different problematics in the terrain and in the wood points segmentation.
@@ -90,12 +90,13 @@ Besides the set LiDAR files, this approach takes also as input the digital terra
 
 The implementation is made of the following steps:
 
-For each LiDAR scan of the forest plot:
+- For each LiDAR scan of the forest plot:
 1. the point cloud is subsampled and cropped it to the desired extent
 2. The points below a given threshold Zmin are filtered out.
 3. The remaining points are tilled into fixed size tiles in order to limit memory consumption.
 4. For each tile, the segmentation occurs. Then, the results of each tile are merged back together.
-The result of each scan are merged together.
+
+- The result of each scan are merged together.
 
 ![screenshot](images/wood.jpg?raw=true "wood")
 
