@@ -48,6 +48,11 @@ cd las2pcl
 cmake . >/dev/null
 make
 cd ..
+echo "Building merge ..."
+cd merge
+cmake . >/dev/null
+make
+cd ..
 echo "Installing the deep network and dependencies ..."
 cd deepNetwork
 python setup.py build_ext --inplace
