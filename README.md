@@ -41,14 +41,14 @@ Several pre-trained models are provided in this package, they are stored into th
     ├── ...
     ├── models                    	             # Pytorch models file
     │   ├── terrain_segmentation  	             #  Terrain/Vegetation segmentation models
-	  │   │   ├── model_terrain_01_128             #   Fine model (2D grid resolution:10cm, N neighbors PCA:128)
-	  │   │   └── model_terrain_02_64              #   Coarse model (2D grid resolution:20cm, N neighbors PCA:64)
+	│   │   ├── model_terrain_01_128             #   Fine model (2D grid resolution:10cm, N neighbors PCA:128)
+	│   │   └── model_terrain_02_64              #   Coarse model (2D grid resolution:20cm, N neighbors PCA:64)
     │   ├── wood_segmentation    	               #  Wood/leaves segmentation models 	
-	  │   │   ├── model_seg_landes_pca5cm	         #   Model trained on vegetation from Landes (Radius PCA:5cm)
+	│   │   ├── model_seg_landes_pca5cm	         #   Model trained on vegetation from Landes (Radius PCA:5cm)
     │   │   ├── model_seg_landes_pca10cm	       #   Model trained on vegetation from Landes (Radius PCA:10cm)
     │   │   ├── model_seg_landes_low_pca5cm	     #   Model trained on smaller trees from Landes (Radius PCA:5cm)
-	  │   │   ├── model_seg_sologne	               #   Model trained on vegetation from Sologne (Radius PCA:5cm)
-	  │   │   └── model_seg_vosges                 #   Model trained on vegetation from Vosges (Radius PCA:5cm)						          
+	│   │   ├── model_seg_sologne	               #   Model trained on vegetation from Sologne (Radius PCA:5cm)
+	│   │   └── model_seg_vosges                 #   Model trained on vegetation from Vosges (Radius PCA:5cm)						          
     └── ...
 
 For both terrain and wood points segmentation, the method follows the steps described in ([Morel et al. 2020](https://link.springer.com/chapter/10.1007/978-3-030-50433-5_20)):
