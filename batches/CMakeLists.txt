@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(pc2chunks8)
 
-find_package(PCL 1.11 REQUIRED)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(Qt5_DIR /usr/local/Cellar/qt@5/5.15.5_1/lib/cmake/Qt5)
+endif()
+find_package(PCL)
 
 set(CMAKE_BUILD_TYPE Release)
 include_directories(${PCL_INCLUDE_DIRS})
