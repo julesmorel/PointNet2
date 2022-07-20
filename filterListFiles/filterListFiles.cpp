@@ -37,7 +37,7 @@ int main(int argc, char *argv[]){
   bool argsOk=true;
 
   //we need at least 3 args (+1 as the program name counts)
-  if (argc > 8) {
+  if (argc > 3) {
     //the first args must be existing files
     //the comes the output file name
     //the last one must be a double

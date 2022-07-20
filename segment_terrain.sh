@@ -4,10 +4,10 @@ RESOLUTION_XYZ=0.01
 K_PCA=64
 
 #Extent
-X_MIN=-0
-X_MAX=10
-Y_MIN=-0
-Y_MAX=10
+X_MIN=-20
+X_MAX=20
+Y_MIN=-20
+Y_MAX=20
 
 #Folder PDAL script
 PDAL_FOLDER="pdal_scripts"
@@ -21,9 +21,9 @@ if [ "$#" -ge  2 ]; then
   echo "Cropping input files"
   for file in ${@:1:$#-1}
   do
-    dir=$(dirname "$file")
-    root=$(basename "${file%.*}")
-    croppedFile=$dir/${root}cropped.laz
+    dirfile=$(dirname "$file")
+    rootfile=$(basename "${file%.*}")
+    croppedFile=$dirfile/${rootfile}cropped.laz
     pdal pipeline $PDAL_FOLDER/crop.json --writers.las.filename=$croppedFile --readers.las.filename=$file --filters.crop.bounds="([$X_MIN,$X_MAX],[$Y_MIN,$Y_MAX])" --filters.sample.radius="$RESOLUTION_XYZ"
     listCroppedFiles+=("$croppedFile")
   done
@@ -41,9 +41,9 @@ if [ "$#" -ge  2 ]; then
   $scriptsroot/batches/batches $pcafile $chunkedfile $counterfile $centerfile 1 1024 4
   echo "* batches division : OK"
   predfile=$dir/${root}_prediction.asc
-  python $scriptsroot/deepNetwork/predict.py -i $chunkedfile -o $predfile -model $model_path --use_pca
+  python $scriptsroot/deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path --use_pca
   echo "* inference : OK"
-  resultfile=$dir/${root}_pointnet2.asc
+  resultfile=$dir/min_points_pointnet2.asc
   $scriptsroot/vote/aggregate $predfile $counterfile $resultfile
   echo "* vote : OK"
   rm $minfile
