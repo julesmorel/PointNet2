@@ -55,8 +55,8 @@ int main(int argc, char *argv[]){
   double offset_y = offsetM.getOffsetY();
 
   //read the points in the file 
-  pcl::PointCloud<pcl::PointXYZI> pts;   
   pointCloudFileReader::read(filenameIn,points,offset_x,offset_y);
+  std::cout<<"Input point cloud: "<<points.size()<<" points"<<std::endl;
 
   //store of the offset if it was not stored before
   offsetM.setOffset(offset_x,offset_y);
@@ -111,13 +111,14 @@ int main(int argc, char *argv[]){
   voxel_grid.setLeafSize (cellSize, cellSize, cellSize);
   pcl::PointCloud<pcl::PointXYZI> ptsFiltered;
   voxel_grid.filter(ptsFiltered);
+  std::cout<<ptsFiltered.size()<<" centers!"<<std::endl;
 
   //Creation of the batches
   pcl::PointCloud<pcl::PointXYZI>   ptsCloudChunks;
   std::vector<pca_ratio> labelsChunks;
   std::map<int, int> mapChuncks;
   pcl::KdTreeFLANN<pcl::PointXYZI> kdtree;
-  kdtree.setInputCloud (points.makeShared());
+  kdtree.setInputCloud (ptsPCA.makeShared());
 
   for(int i=0;i<ptsFiltered.size();i++){
     pcl::PointXYZI currentPt = ptsFiltered.at(i);
@@ -139,13 +140,23 @@ int main(int argc, char *argv[]){
         }
     }
   }
+  std::cout<<ptsCloudChunks.size()<<" points in chuncks!"<<std::endl;
+
+  pybind11::scoped_interpreter guard{}; 
+  //pybind11::module pred = pybind11::module::import("../deepNetwork/predictOneBatch");
+    pybind11::module sys = pybind11::module::import("sys");
+    (sys.attr("path")).attr("append")("../deepNetwork/prediction");
+    pybind11::module pred = pybind11::module::import("predictOneBatchStub");
+    pybind11::print(pred.attr("test")());
+    //pybind11::object result = sys.attr("path")();
+    //std::cout << "Sqrt of 25 is: " << result.cast<std::string>() << std::endl;
 
   //Sending the batches for prediction
   int batchesNumber=ptsCloudChunks.size()/numberNeighbors;
-  for(int k=0;k<ptsFiltered.size();k++){
-    std::vector<pcl::PointXYZI>::const_iterator first = ptsCloudChunks.begin() + batchesNumber*k;
-    std::vector<pcl::PointXYZI>::const_iterator last = ptsCloudChunks.begin() + batchesNumber*(k+1);
-    pcl::PointCloud<pcl::PointXYZI> batchesPoints(first,last);
+  for(int k=0;k<ptsFiltered.size()-1;k++){
+    // std::vector<pcl::PointXYZI>::const_iterator first = ptsCloudChunks.begin() + batchesNumber*k;
+    // std::vector<pcl::PointXYZI>::const_iterator last = ptsCloudChunks.begin() + batchesNumber*(k+1);
+    // pcl::PointCloud<pcl::PointXYZI> batchesPoints(first,last);
 
     std::vector<pca_ratio>::const_iterator firstPCA = labelsChunks.begin() + batchesNumber*k;
     std::vector<pca_ratio>::const_iterator lastPCA = labelsChunks.begin() + batchesNumber*(k+1);

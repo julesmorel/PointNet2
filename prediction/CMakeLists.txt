@@ -20,4 +20,4 @@ add_definitions(${PDAL_DEFINITIONS})
 include(pybind11.cmake)
 
 add_executable (prediction prediction.cpp ../util/pointCloudFileReader.cpp ../util/offsetManager.cpp)
-target_link_libraries (prediction ${PCL_LIBRARIES} ${PDAL_LIBRARIES})
+target_link_libraries (prediction ${PCL_LIBRARIES} ${PDAL_LIBRARIES} pybind11::embed)
