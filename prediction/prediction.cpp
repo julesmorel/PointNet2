@@ -16,6 +16,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include "pybind11/embed.h"
+#include "pybind11/numpy.h"
+#include <pybind11/stl.h> 
 
 #include "../util/pointCloudFileReader.h"
 #include "../util/offsetManager.h"
@@ -145,22 +147,39 @@ int main(int argc, char *argv[]){
   pybind11::scoped_interpreter guard{}; 
   //pybind11::module pred = pybind11::module::import("../deepNetwork/predictOneBatch");
     pybind11::module sys = pybind11::module::import("sys");
-    (sys.attr("path")).attr("append")("../deepNetwork/prediction");
-    pybind11::module pred = pybind11::module::import("predictOneBatchStub");
-    pybind11::print(pred.attr("test")());
-    //pybind11::object result = sys.attr("path")();
-    //std::cout << "Sqrt of 25 is: " << result.cast<std::string>() << std::endl;
+    (sys.attr("path")).attr("append")("../deepNetwork");
+    pybind11::object mod = pybind11::module::import("predictOneBatchStub");
+    std::cout<<"Module imported"<<std::endl;
+    pybind11::object pred = mod.attr("inference");
+    pybind11::object predictor = pred("modelName");
+    std::cout<<"object ok"<<std::endl;
+    pybind11::object r = pred.attr("run");
+    std::vector<std::vector<double>> data;
+    data.push_back(std::vector<double>{1,2,3});
+    data.push_back(std::vector<double>{4,5,6});
+    std::cout<<"predicting.."<<std::endl;
+    pybind11::array_t<double> res = r(predictor,data);
+    pybind11::print(res);
+    //pybind11::array_t<double> res = r(predictor,data);
+    //double* cls = reinterpret_borrow<double*>(res);
+    //double* cls = res.cast<double*>();
+    //double* input_ptr = reinterpret_cast<double*>(res);
+    //auto v = new std::vector<double>(r(predictor,data));
+    //std::vector<double> &cls = res.cast<std::vector<double>>();
+    //std::vector<double> cls = res;
+    std::cout<<"casting done"<<std::endl;
+    std::cout<<res.at(0)<<std::endl;
 
   //Sending the batches for prediction
-  int batchesNumber=ptsCloudChunks.size()/numberNeighbors;
-  for(int k=0;k<ptsFiltered.size()-1;k++){
-    // std::vector<pcl::PointXYZI>::const_iterator first = ptsCloudChunks.begin() + batchesNumber*k;
-    // std::vector<pcl::PointXYZI>::const_iterator last = ptsCloudChunks.begin() + batchesNumber*(k+1);
-    // pcl::PointCloud<pcl::PointXYZI> batchesPoints(first,last);
+  // int batchesNumber=ptsCloudChunks.size()/numberNeighbors;
+  // for(int k=0;k<ptsFiltered.size()-1;k++){
+  //   // std::vector<pcl::PointXYZI>::const_iterator first = ptsCloudChunks.begin() + batchesNumber*k;
+  //   // std::vector<pcl::PointXYZI>::const_iterator last = ptsCloudChunks.begin() + batchesNumber*(k+1);
+  //   // pcl::PointCloud<pcl::PointXYZI> batchesPoints(first,last);
 
-    std::vector<pca_ratio>::const_iterator firstPCA = labelsChunks.begin() + batchesNumber*k;
-    std::vector<pca_ratio>::const_iterator lastPCA = labelsChunks.begin() + batchesNumber*(k+1);
-    std::vector<pca_ratio> batchesPCA(firstPCA,lastPCA);
-  }
+  //   std::vector<pca_ratio>::const_iterator firstPCA = labelsChunks.begin() + batchesNumber*k;
+  //   std::vector<pca_ratio>::const_iterator lastPCA = labelsChunks.begin() + batchesNumber*(k+1);
+  //   std::vector<pca_ratio> batchesPCA(firstPCA,lastPCA);
+  // }
 
 }
