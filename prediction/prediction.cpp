@@ -93,6 +93,7 @@ int main(int argc, char *argv[]){
       listPcaRatios.push_back(ratios);
     }
   }
+  std::cout<<"PCA point cloud: "<<ptsPCA.size()<<" points"<<std::endl;
 
   //Retrieving the centers of the occupied cells in the octree
   pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZI> octree(cellSize);
@@ -142,44 +143,87 @@ int main(int argc, char *argv[]){
         }
     }
   }
-  std::cout<<ptsCloudChunks.size()<<" points in chuncks!"<<std::endl;
+  std::cout<<"Chunks point cloud: "<<ptsCloudChunks.size()<<" points"<<std::endl;
 
+  std::vector<double> predicted_label0;
+  std::vector<double> predicted_label1;
+
+  //Loading python interpreter
   pybind11::scoped_interpreter guard{}; 
-  //pybind11::module pred = pybind11::module::import("../deepNetwork/predictOneBatch");
-    pybind11::module sys = pybind11::module::import("sys");
-    (sys.attr("path")).attr("append")("../deepNetwork");
-    pybind11::object mod = pybind11::module::import("predictOneBatchStub");
-    std::cout<<"Module imported"<<std::endl;
-    pybind11::object pred = mod.attr("inference");
-    pybind11::object predictor = pred("modelName");
-    std::cout<<"object ok"<<std::endl;
-    pybind11::object r = pred.attr("run");
-    std::vector<std::vector<double>> data;
-    data.push_back(std::vector<double>{1,2,3});
-    data.push_back(std::vector<double>{4,5,6});
-    std::cout<<"predicting.."<<std::endl;
-    pybind11::array_t<double> res = r(predictor,data);
-    pybind11::print(res);
-    //pybind11::array_t<double> res = r(predictor,data);
-    //double* cls = reinterpret_borrow<double*>(res);
-    //double* cls = res.cast<double*>();
-    //double* input_ptr = reinterpret_cast<double*>(res);
-    //auto v = new std::vector<double>(r(predictor,data));
-    //std::vector<double> &cls = res.cast<std::vector<double>>();
-    //std::vector<double> cls = res;
-    std::cout<<"casting done"<<std::endl;
-    std::cout<<res.at(0)<<std::endl;
 
+  //Adding package directoy to python path
+  pybind11::module sys = pybind11::module::import("sys");
+  (sys.attr("path")).attr("append")("../deepNetwork");
+  
+  //Importing module
+  pybind11::object mod = pybind11::module::import("predictOneBatchStub");
+  
+  //Loading pytorch model in object instance 
+  pybind11::object pred = mod.attr("inference");
+  pybind11::object predictor = pred("modelName");
+
+  //Retrieving address of the prediction function
+  pybind11::object pred_func = pred.attr("run");
+    
   //Sending the batches for prediction
-  // int batchesNumber=ptsCloudChunks.size()/numberNeighbors;
-  // for(int k=0;k<ptsFiltered.size()-1;k++){
-  //   // std::vector<pcl::PointXYZI>::const_iterator first = ptsCloudChunks.begin() + batchesNumber*k;
-  //   // std::vector<pcl::PointXYZI>::const_iterator last = ptsCloudChunks.begin() + batchesNumber*(k+1);
-  //   // pcl::PointCloud<pcl::PointXYZI> batchesPoints(first,last);
+  int batchesNumber=ptsCloudChunks.size()/numberNeighbors;
+  for(int k=0;k<batchesNumber;k++){
+    std::vector<std::vector<double>> data;
+    for(int n=0;n<numberNeighbors;n++){
+      //use of STL container for direct casting to numpy array
+      std::vector<double> enriched_point;
+      pcl::PointXYZI p = ptsCloudChunks.at(k*numberNeighbors+n);
+      pca_ratio r = labelsChunks.at(k*numberNeighbors+n);
+      enriched_point.push_back(p.x);
+      enriched_point.push_back(p.y);
+      enriched_point.push_back(p.z);
+      enriched_point.push_back(r.r1);
+      enriched_point.push_back(r.r2);
+      enriched_point.push_back(r.r3);
+      data.push_back(enriched_point);
+    }
+    //Predicting the label of the current batch of points
+    pybind11::array_t<double> res = pred_func(predictor,data);
+    for(int n=0;n<numberNeighbors;n++){
+      predicted_label0.push_back(res.at(n));
+    }
+    for(int n=numberNeighbors;n<2*numberNeighbors;n++){
+      predicted_label1.push_back(res.at(n));
+    }
+  }
+  std::cout<<"pts: "<<ptsCloudChunks.size()<<" labels 0: "<<predicted_label0.size()<<" and 1: "<<predicted_label1.size()<<std::endl;   
 
-  //   std::vector<pca_ratio>::const_iterator firstPCA = labelsChunks.begin() + batchesNumber*k;
-  //   std::vector<pca_ratio>::const_iterator lastPCA = labelsChunks.begin() + batchesNumber*(k+1);
-  //   std::vector<pca_ratio> batchesPCA(firstPCA,lastPCA);
-  // }
+  pcl::KdTreeFLANN<pcl::PointXYZI> kdtreeChunks;
+  kdtreeChunks.setInputCloud (ptsCloudChunks.makeShared());
 
+  //Voting process
+  std::ofstream outfile;
+  outfile.open(filenameOut, std::ios_base::app);
+  for(int i=0;i<ptsPCA.size();i++){
+    pcl::PointXYZI currentPt = ptsPCA.at(i);
+    int numberOfPointsToFind = mapChuncks.find(i)->second;
+    int counter=0;
+    if(numberOfPointsToFind>0){
+      std::vector<int> k_indices(numberOfPointsToFind);
+      std::vector<float> k_sqr_distances(numberOfPointsToFind);
+
+      int numberN =  kdtreeChunks.nearestKSearch(currentPt,numberOfPointsToFind,k_indices,k_sqr_distances);
+
+      double sumPred0=0.;
+      double sumPred1=0.;
+      if(numberN>0){
+        for( int j = 0; j< k_indices.size() ;j++){
+          sumPred0+=predicted_label0.at(k_indices.at(j));
+          sumPred1+=predicted_label1.at(k_indices.at(j));
+        }
+      }
+      double pred0Ratio = sumPred0/(double)numberOfPointsToFind;
+      double pred1Ratio = sumPred1/(double)numberOfPointsToFind;
+      int classif=0;
+      if(pred1Ratio>pred0Ratio){
+          classif=1;
+      }
+      outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<std::endl;
+    }
+  }
 }

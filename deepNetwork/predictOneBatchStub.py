@@ -9,7 +9,7 @@ class inference:
         
     def run(self,points):  
         Npoints = len(points)
-        print(str(Npoints)+" points")
-        return np.random.random_sample((Npoints,))
+        #print(str(Npoints)+" points")
+        return np.random.random_sample((2*Npoints,))
         
         
