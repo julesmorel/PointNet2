@@ -47,7 +47,7 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points,
     }
   }
 
-  void readAsciiFileChunked(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points, std::vector<int>& chunks, std::vector<int>& labels)
+  void readAsciiFileChunked(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points, std::vector<int>& chunks)
   {
     std::ifstream file(filename);
     if (file.is_open()) {
@@ -63,7 +63,6 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points,
           points.push_back(p);
 
           chunks.push_back(std::stoi(results.at(3)));
-          labels.push_back(std::stoi(results.at(4)));
         }
         file.close();
       }
@@ -90,8 +89,7 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points,
 
       pcl::PointCloud<pcl::PointXYZ> ptsChunks;
       std::vector<int> chunksCounter;
-      std::vector<int> labels;
-      readAsciiFileChunked(filenameChunks,ptsChunks,chunksCounter,labels);
+      readAsciiFileChunked(filenameChunks,ptsChunks,chunksCounter);
 
       pcl::KdTreeFLANN<pcl::PointXYZ> kdtreePred;
       kdtreePred.setInputCloud (ptsPred.makeShared());
@@ -139,7 +137,6 @@ void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZ>& points,
           if(pred1Ratio>pred0Ratio){
               classif=1;
           }
-          int lab = labels.at(i);
           outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<" "<<classifAveraged<<" "<<pred0Ratio<<" "<<pred1Ratio<<std::endl;
         }
       }

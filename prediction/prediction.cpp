@@ -15,9 +15,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "pybind11/embed.h"
-#include "pybind11/numpy.h"
-#include <pybind11/stl.h> 
+// #include "pybind11/embed.h"
+// #include "pybind11/numpy.h"
+// #include <pybind11/stl.h> 
 
 #include "../util/pointCloudFileReader.h"
 #include "../util/offsetManager.h"
@@ -31,18 +31,20 @@ struct pca_ratio {   // Declare PERSON struct type
 int main(int argc, char *argv[]){
   std::string filenameIn;
   std::string filenameOut;
+  std::string filenameOutCounter;
   bool argsOk=true;
   float radius=0.1f;
   float cellSize=0.1f;
   int numberNeighbors=2048;
 
   //we need at least 3 args (+1 as the program name counts)
-  if (argc > 4) {
+  if (argc > 6) {
     filenameIn = argv[1];
     filenameOut = argv[2];
-    radius = std::stod(argv[3]);
-    cellSize = std::stod(argv[4]);
-    numberNeighbors = std::stoi(argv[5]);
+    filenameOutCounter = argv[3];
+    radius = std::stod(argv[4]);
+    cellSize = std::stod(argv[5]);
+    numberNeighbors = std::stoi(argv[6]);
   }else{
     std::cout<<"Please specify arguments in the following order:"<<std::endl;
     std::cout<<"file_1 ... file_N output_file"<<std::endl;
@@ -58,7 +60,7 @@ int main(int argc, char *argv[]){
 
   //read the points in the file 
   pointCloudFileReader::read(filenameIn,points,offset_x,offset_y);
-  std::cout<<"Input point cloud: "<<points.size()<<" points"<<std::endl;
+  //std::cout<<"Input point cloud: "<<points.size()<<" points"<<std::endl;
 
   //store of the offset if it was not stored before
   offsetM.setOffset(offset_x,offset_y);
@@ -93,7 +95,7 @@ int main(int argc, char *argv[]){
       listPcaRatios.push_back(ratios);
     }
   }
-  std::cout<<"PCA point cloud: "<<ptsPCA.size()<<" points"<<std::endl;
+  //std::cout<<"PCA point cloud: "<<ptsPCA.size()<<" points"<<std::endl;
 
   //Retrieving the centers of the occupied cells in the octree
   pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZI> octree(cellSize);
@@ -143,87 +145,103 @@ int main(int argc, char *argv[]){
         }
     }
   }
-  std::cout<<"Chunks point cloud: "<<ptsCloudChunks.size()<<" points"<<std::endl;
+  //std::cout<<"Chunks point cloud: "<<ptsCloudChunks.size()<<" points"<<std::endl;
 
-  std::vector<double> predicted_label0;
-  std::vector<double> predicted_label1;
-
-  //Loading python interpreter
-  pybind11::scoped_interpreter guard{}; 
-
-  //Adding package directoy to python path
-  pybind11::module sys = pybind11::module::import("sys");
-  (sys.attr("path")).attr("append")("../deepNetwork");
-  
-  //Importing module
-  pybind11::object mod = pybind11::module::import("predictOneBatchStub");
-  
-  //Loading pytorch model in object instance 
-  pybind11::object pred = mod.attr("inference");
-  pybind11::object predictor = pred("modelName");
-
-  //Retrieving address of the prediction function
-  pybind11::object pred_func = pred.attr("run");
-    
-  //Sending the batches for prediction
-  int batchesNumber=ptsCloudChunks.size()/numberNeighbors;
-  for(int k=0;k<batchesNumber;k++){
-    std::vector<std::vector<double>> data;
-    for(int n=0;n<numberNeighbors;n++){
-      //use of STL container for direct casting to numpy array
-      std::vector<double> enriched_point;
-      pcl::PointXYZI p = ptsCloudChunks.at(k*numberNeighbors+n);
-      pca_ratio r = labelsChunks.at(k*numberNeighbors+n);
-      enriched_point.push_back(p.x);
-      enriched_point.push_back(p.y);
-      enriched_point.push_back(p.z);
-      enriched_point.push_back(r.r1);
-      enriched_point.push_back(r.r2);
-      enriched_point.push_back(r.r3);
-      data.push_back(enriched_point);
-    }
-    //Predicting the label of the current batch of points
-    pybind11::array_t<double> res = pred_func(predictor,data);
-    for(int n=0;n<numberNeighbors;n++){
-      predicted_label0.push_back(res.at(n));
-    }
-    for(int n=numberNeighbors;n<2*numberNeighbors;n++){
-      predicted_label1.push_back(res.at(n));
-    }
-  }
-  std::cout<<"pts: "<<ptsCloudChunks.size()<<" labels 0: "<<predicted_label0.size()<<" and 1: "<<predicted_label1.size()<<std::endl;   
-
-  pcl::KdTreeFLANN<pcl::PointXYZI> kdtreeChunks;
-  kdtreeChunks.setInputCloud (ptsCloudChunks.makeShared());
-
-  //Voting process
   std::ofstream outfile;
   outfile.open(filenameOut, std::ios_base::app);
-  for(int i=0;i<ptsPCA.size();i++){
-    pcl::PointXYZI currentPt = ptsPCA.at(i);
-    int numberOfPointsToFind = mapChuncks.find(i)->second;
-    int counter=0;
-    if(numberOfPointsToFind>0){
-      std::vector<int> k_indices(numberOfPointsToFind);
-      std::vector<float> k_sqr_distances(numberOfPointsToFind);
-
-      int numberN =  kdtreeChunks.nearestKSearch(currentPt,numberOfPointsToFind,k_indices,k_sqr_distances);
-
-      double sumPred0=0.;
-      double sumPred1=0.;
-      if(numberN>0){
-        for( int j = 0; j< k_indices.size() ;j++){
-          sumPred0+=predicted_label0.at(k_indices.at(j));
-          sumPred1+=predicted_label1.at(k_indices.at(j));
-        }
-      }
-      double pred0Ratio = sumPred0/(double)numberOfPointsToFind;
-      double pred1Ratio = sumPred1/(double)numberOfPointsToFind;
-      int classif=0;
-      if(pred1Ratio>pred0Ratio){
-          classif=1;
-      }
-      outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<std::endl;
-    }
+  for(int i=0;i<ptsCloudChunks.size();i++){
+    pcl::PointXYZI p = ptsCloudChunks.at(i);
+    pca_ratio pca = labelsChunks.at(i);
+    outfile <<p.x<<" "<<p.y<<" "<<p.z<<" "<<pca.r1<<" "<<pca.r2<<" "<<pca.r3<<'\n';
   }
+
+  std::ofstream outfile2;
+  outfile2.open(filenameOutCounter, std::ios_base::app);
+  for(int i=0;i<ptsPCA.size();i++){
+    pcl::PointXYZI p = ptsPCA.at(i);
+    int counter = mapChuncks.find(i)->second;
+    outfile2<<p.x<<" "<<p.y<<" "<<p.z<<" "<<counter<<'\n';
+  }
+
+  // std::vector<double> predicted_label0;
+  // std::vector<double> predicted_label1;
+
+  // //Loading python interpreter
+  // pybind11::scoped_interpreter guard{}; 
+
+  // //Adding package directoy to python path
+  // pybind11::module sys = pybind11::module::import("sys");
+  // (sys.attr("path")).attr("append")("../deepNetwork");
+  
+  // //Importing module
+  // pybind11::object mod = pybind11::module::import("predictOneBatch");
+  
+  // //Loading pytorch model in object instance 
+  // pybind11::object pred = mod.attr("inference");
+  // pybind11::object predictor = pred("../models/wood_segmentation/model_seg_sologne");
+
+  // //Retrieving address of the prediction function
+  // pybind11::object pred_func = pred.attr("run");
+    
+  // //Sending the batches for prediction
+  // int batchesNumber=ptsCloudChunks.size()/numberNeighbors;
+  // for(int k=0;k<batchesNumber;k++){
+  //   std::vector<std::vector<double>> data;
+  //   for(int n=0;n<numberNeighbors;n++){
+  //     //use of STL container for direct casting to numpy array
+  //     std::vector<double> enriched_point;
+  //     pcl::PointXYZI p = ptsCloudChunks.at(k*numberNeighbors+n);
+  //     pca_ratio r = labelsChunks.at(k*numberNeighbors+n);
+  //     enriched_point.push_back(p.x);
+  //     enriched_point.push_back(p.y);
+  //     enriched_point.push_back(p.z);
+  //     enriched_point.push_back(r.r1);
+  //     enriched_point.push_back(r.r2);
+  //     enriched_point.push_back(r.r3);
+  //     data.push_back(enriched_point);
+  //   }
+  //   //Predicting the label of the current batch of points
+  //   pybind11::array_t<double> res = pred_func(predictor,data);
+  //   for(int n=0;n<numberNeighbors;n++){
+  //     predicted_label0.push_back(res.at(n));
+  //   }
+  //   for(int n=numberNeighbors;n<2*numberNeighbors;n++){
+  //     predicted_label1.push_back(res.at(n));
+  //   }
+  // }
+  // std::cout<<"pts: "<<ptsCloudChunks.size()<<" labels 0: "<<predicted_label0.size()<<" and 1: "<<predicted_label1.size()<<std::endl;   
+
+  // pcl::KdTreeFLANN<pcl::PointXYZI> kdtreeChunks;
+  // kdtreeChunks.setInputCloud (ptsCloudChunks.makeShared());
+
+  // //Voting process
+  // std::ofstream outfile;
+  // outfile.open(filenameOut, std::ios_base::app);
+  // for(int i=0;i<ptsPCA.size();i++){
+  //   pcl::PointXYZI currentPt = ptsPCA.at(i);
+  //   int numberOfPointsToFind = mapChuncks.find(i)->second;
+  //   int counter=0;
+  //   if(numberOfPointsToFind>0){
+  //     std::vector<int> k_indices(numberOfPointsToFind);
+  //     std::vector<float> k_sqr_distances(numberOfPointsToFind);
+
+  //     int numberN =  kdtreeChunks.nearestKSearch(currentPt,numberOfPointsToFind,k_indices,k_sqr_distances);
+
+  //     double sumPred0=0.;
+  //     double sumPred1=0.;
+  //     if(numberN>0){
+  //       for( int j = 0; j< k_indices.size() ;j++){
+  //         sumPred0+=predicted_label0.at(k_indices.at(j));
+  //         sumPred1+=predicted_label1.at(k_indices.at(j));
+  //       }
+  //     }
+  //     double pred0Ratio = sumPred0/(double)numberOfPointsToFind;
+  //     double pred1Ratio = sumPred1/(double)numberOfPointsToFind;
+  //     int classif=0;
+  //     if(pred1Ratio>pred0Ratio){
+  //         classif=1;
+  //     }
+  //     outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<classif<<std::endl;
+  //   }
+  // }
 }
