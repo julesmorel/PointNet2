@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
   voxel_grid.setLeafSize (cellSize, cellSize, cellSize);
   pcl::PointCloud<pcl::PointXYZI> ptsFiltered;
   voxel_grid.filter(ptsFiltered);
-  std::cout<<ptsFiltered.size()<<" centers!"<<std::endl;
+  //std::cout<<ptsFiltered.size()<<" centers!"<<std::endl;
 
   //Creation of the batches
   pcl::PointCloud<pcl::PointXYZI>   ptsCloudChunks;
