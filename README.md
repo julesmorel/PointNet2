@@ -48,7 +48,8 @@ Several pre-trained models are provided in this package, they are stored into th
     │   │   ├── model_seg_landes_pca10cm	     #   Model trained on vegetation from Landes (Radius PCA:10cm)
     │   │   ├── model_seg_landes_low_pca5cm	     #   Model trained on smaller trees from Landes (Radius PCA:5cm)
     |   │   ├── model_seg_landes_mixed_pca10cm   #   Model trained on both big and small trees from Landes (Radius PCA:10cm)
-	│   │   ├── model_seg_sologne	             #   Model trained on vegetation from Sologne (Radius PCA:5cm)
+	│   │   ├── model_seg_sologne_5cm	         #   Model trained on vegetation from Sologne (Radius PCA:5cm)
+	│   │   ├── model_seg_sologne_10cm	        #   Model trained on vegetation from Sologne (Radius PCA:10cm)  
 	│   │   └── model_seg_vosges                 #   Model trained on vegetation from Vosges (Radius PCA:5cm)						          
     └── ...
 
