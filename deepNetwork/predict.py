@@ -52,7 +52,7 @@ num_points = args.num_points
 # number of categories
 k = 2
 
-data_pred, labels_training = utils.loadPointsAndLabels(args.i,num_points,args.use_pca,args.use_intensity)
+data_pred = utils.loadPoints(args.i,num_points,args.use_pca,args.use_intensity)
 data_pred2 = data_pred.copy()
 data_pred_center = utils.recenterPoints(data_pred,num_points,args.use_pca,args.use_intensity)
 data_pred_center2 = data_pred_center.copy()
@@ -79,12 +79,6 @@ for i in tqdm(range(li)):
     pred = model(torch.from_numpy(v_points).float().to(device))
     prednp = pred.cpu().detach().numpy()
     v_points = np.squeeze(v_points)
-
-    arr_xs=[];
-    arr_ys=[];
-    arr_zs=[];
-    arr_p1=[];
-    arr_p2=[];
 
     batch_size=v_points.shape[0];
     arr_xs=data_pred2[i*num_points:i*num_points+batch_size,0]
