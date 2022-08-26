@@ -12,6 +12,10 @@ Y_MAX=20
 ZMIN=0.2
 ZMAX=25
 
+#Batch parameters
+BATCH_SIZE=2048
+BATCH_DELTA=0.3
+
 #Max number of points in tile
 MaxNumberPoint=500000
 
@@ -59,28 +63,15 @@ if [ "$#" -ge  3 ]; then
             root_tile=$(basename "${tile%.*}")
             chunkedfile=$dir_tile/${root_tile}_chunked.asc
             counterfile=$dir_tile/${root_tile}_counter.asc
-            $scriptsroot/prediction/prediction $tile $chunkedfile $counterfile $R_PCA 0.3 2048
-
-            #filteredfile=$dir_tile/${root_tile}_filtered.asc
-            #$scriptsroot/las2pcl/las2pcl $tile $filteredfile
-            #pcafile=$dir_tile/${root_tile}_pca.asc
-            #$scriptsroot/pca_radius/pca $filteredfile $pcafile $R_PCA
-            #chunkedfile=$dir_tile/${root_tile}_chunked.asc
-            #counterfile=$dir_tile/${root_tile}_counter.asc
-            #centerfile=$dir_tile/${root_tile}_centers.asc
-            #$scriptsroot/batches_radius/batches $pcafile $chunkedfile $counterfile $centerfile 0.2 2048 4
-            
+            $scriptsroot/prediction/prediction $tile $chunkedfile $counterfile $R_PCA $BATCH_DELTA $BATCH_SIZE
             predfile=$dir_tile/${root_tile}_prediction.asc
-            python3 $scriptsroot/deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path -num_points 2048 --use_pca
+            python3 $scriptsroot/deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path -num_points $BATCH_SIZE --use_pca
             resultfile=$dir_tile/${root_tile}_result.asc
             $scriptsroot/vote/aggregate $predfile $counterfile $resultfile
             listResultFiles+=($resultfile)
             rm $predfile
             rm $counterfile
             rm $chunkedfile
-            #rm $centerfile
-            #rm $pcafile
-            #rm $filteredfile
             rm $tile
         fi
     done
@@ -91,7 +82,6 @@ if [ "$#" -ge  3 ]; then
       cat $fileResult >> $resultFileMerge
       rm $fileResult
     done
-    echo "   Append results in " $resultFileMerge
     listResultFilesMerged+=("$resultFileMerge")
 
   done
