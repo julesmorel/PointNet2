@@ -15,6 +15,10 @@ ZMAX=25
 #Max number of points in tile
 MaxNumberPoint=500000
 
+#Resolution of the final point cloud 
+#Warning: if too small, PCL gives: Leaf size is too small for the input dataset. Integer indices would overflow
+RESOLUTION_OUT=0.03
+
 #Folder PDAL script
 PDAL_FOLDER="pdal_scripts"
 
@@ -93,7 +97,7 @@ if [ "$#" -ge  3 ]; then
   done
 
   pointsMerged=$dir/result.xyz
-  $scriptsroot/merge/merge ${listResultFilesMerged[@]} $pointsMerged
+  $scriptsroot/merge/merge ${listResultFilesMerged[@]} $pointsMerged $RESOLUTION_OUT
   for f in ${listResultFilesMerged[@]}
   do
     rm $f

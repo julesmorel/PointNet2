@@ -35,16 +35,17 @@ bool fileExists (const std::string& name) {
 int main(int argc, char *argv[]){
   std::vector<std::string> filenames;
   std::string filenameOut;
+  double resolution;
   bool argsOk=true;
 
   //we need at least 3 args (+1 as the program name counts)
-  if (argc > 2) {
+  if (argc > 3) {
     //the first args must be existing files
     //then comes the output file name
-    for(int i=1;i<argc-1;i++){
+    for(int i=1;i<argc-2;i++){
       argsOk=argsOk && fileExists(argv[i]);
     }
-    argsOk=argsOk && !isNumber(argv[argc-1]);
+    argsOk=argsOk && !isNumber(argv[argc-2]);
   }else{
     argsOk=false;
   }
@@ -59,7 +60,8 @@ int main(int argc, char *argv[]){
     for(int i=1;i<argc-1;i++){
       filenames.push_back(argv[i]);
     }
-    filenameOut=argv[argc-1];
+    filenameOut=argv[argc-2];
+    resolution=std::stod(argv[argc-1]);
   }
 
   pcl::PointCloud<pcl::PointXYZI> ptsOut;
@@ -80,32 +82,19 @@ int main(int argc, char *argv[]){
 
     //concatenate the points  
     ptsOut+=pts;
+
+    pcl::VoxelGrid<pcl::PointXYZI> voxel_grid;
+    voxel_grid.setInputCloud (ptsOut.makeShared());
+    voxel_grid.setLeafSize (resolution, resolution, resolution);
+    pcl::PointCloud<pcl::PointXYZI> ptsFiltered;
+    voxel_grid.filter(ptsFiltered);
+    ptsOut=ptsFiltered;
   }
-
-  pcl::KdTreeFLANN<pcl::PointXYZI> kdtree;
-  kdtree.setInputCloud (ptsOut.makeShared());
-
-  double cellSize=0.05;
-  pcl::VoxelGrid<pcl::PointXYZI> voxel_grid;
-  voxel_grid.setInputCloud (ptsOut.makeShared());
-  voxel_grid.setLeafSize (cellSize, cellSize, cellSize);
-  pcl::PointCloud<pcl::PointXYZI> ptsFiltered;
-  voxel_grid.filter(ptsFiltered);
 
   std::ofstream outfile;
   outfile.open(filenameOut, std::ios_base::app);
-  for(int i=0;i<ptsFiltered.size();i++){
-    pcl::PointXYZI currentPt = ptsFiltered.at(i);
-    std::vector<int> k_indices;
-    std::vector<float> k_sqr_distances;
-    int numberN =  kdtree.radiusSearch(currentPt,cellSize,k_indices,k_sqr_distances);
-    if(numberN>0){
-      double score=0;
-      for( int j = 0; j< k_indices.size() ;j++){
-        pcl::PointXYZI p = ptsOut.at(k_indices.at(j));
-        score+=p.intensity/((double)numberN);
-      }
-      outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<score<<'\n';
-    }
+  for(int i=0;i<ptsOut.size();i++){
+    pcl::PointXYZI currentPt = ptsOut.at(i);
+    outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<currentPt.intensity<<'\n';
   }
 }
