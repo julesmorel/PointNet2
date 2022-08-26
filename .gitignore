@@ -9,3 +9,8 @@ __pycache__/
 CMakeFiles
 Makefile
 CMakeCache.txt
+
+
+data
+.DS_Store
+_deps
