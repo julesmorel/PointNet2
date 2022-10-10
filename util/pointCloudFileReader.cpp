@@ -86,13 +86,14 @@ void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl
     double fieldX=point_view->getFieldAs<double>(Id::X, idx);
     double fieldY=point_view->getFieldAs<double>(Id::Y, idx);
     double fieldZ=point_view->getFieldAs<double>(Id::Z, idx);
+    double classification=point_view->getFieldAs<double>(Id::Classification, idx);
     double x = fieldX-offset_x;
     double y = fieldY-offset_y;
     double z = fieldZ;
     p.x=x;
     p.y=y;
     p.z=z;
-    p.intensity=0.;       
+    p.intensity=classification;       
     points.push_back(p);  
   }
 }

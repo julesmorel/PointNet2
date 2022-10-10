@@ -58,6 +58,11 @@ cd prediction
 cmake . >/dev/null
 make
 cd ..
+echo "Building classification ..."
+cd classification
+cmake . >/dev/null
+make
+cd ..
 echo "Installing the deep network and dependencies ..."
 cd deepNetwork
 python setup.py build_ext --inplace
