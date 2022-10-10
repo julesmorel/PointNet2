@@ -1,3 +1,10 @@
+#Extent
+X_MIN=-20
+X_MAX=20
+Y_MIN=-20
+Y_MAX=20
+
+#Resolution for the classification of wood points
 RESOLUTION=0.03
 
 #Folder PDAL script
@@ -18,7 +25,7 @@ if [ "$#" -ge  3 ]; then
     dir=$(dirname "$file")
     root=$(basename "${file%.*}")
     fileClassGround=$dir/${root}_ground.laz
-    pdal pipeline pdal_scripts/classify.json --writers.las.filename=$fileClassGround --readers.las.filename=$file --filters.hag_dem.raster=$dtm_path
+    pdal pipeline pdal_scripts/classify.json --writers.las.filename=$fileClassGround --readers.las.filename=$file --filters.hag_dem.raster=$dtm_path --filters.crop.bounds="([$X_MIN,$X_MAX],[$Y_MIN,$Y_MAX])"
     fileClassified=$dir/${root}_classified.laz
     ./classification $fileClassGround $woodfile $fileClassified $RESOLUTION
   done

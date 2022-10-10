@@ -2,6 +2,10 @@
     "pipeline":[
       "input.las",
       {
+        "type":"filters.crop",
+        "bounds":"([-20,20],[-20,20])"
+      },	
+      {
         "type":"filters.hag_dem",
         "raster": "autzen_dem.tif"
       },
