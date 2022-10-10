@@ -4,6 +4,9 @@ X_MAX=20
 Y_MIN=-20
 Y_MAX=20
 
+#Limit in Z for the ground classification
+LIMIT_Z=0.1
+
 #Resolution for the classification of wood points
 RESOLUTION=0.03
 
@@ -27,8 +30,9 @@ if [ "$#" -ge  3 ]; then
     fileClassGround=$dir/${root}_ground.laz
     pdal pipeline pdal_scripts/classify.json --writers.las.filename=$fileClassGround --readers.las.filename=$file --filters.hag_dem.raster=$dtm_path --filters.crop.bounds="([$X_MIN,$X_MAX],[$Y_MIN,$Y_MAX])"
     fileClassified=$dir/${root}_classified.laz
-    ./classification $fileClassGround $woodfile $fileClassified $RESOLUTION
+    ./classification/classification $fileClassGround $woodfile $fileClassified $RESOLUTION
+    rm $fileClassGround
   done
 else  
-   echo "Please provide a list of las/laz files and a dtm raster"
+   echo "Please provide a list of las/laz files, a dtm raster and a ASCII file containing every trees points"
 fi

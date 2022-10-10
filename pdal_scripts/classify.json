@@ -13,8 +13,8 @@
         "type":"filters.assign",
         "value" :
         [
-            "Classification = 2 WHERE HeightAboveGround < 0.25",
-            "Classification = 1 WHERE HeightAboveGround >= 0.25"
+            "Classification = 2 WHERE HeightAboveGround < 0.1",
+            "Classification = 1 WHERE HeightAboveGround >= 0.1"
         ]
       },
       "placeholder.laz"
