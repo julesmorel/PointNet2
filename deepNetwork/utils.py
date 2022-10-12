@@ -18,6 +18,19 @@ def iter_loadtxt(filename, delimiter=' ', dtype=float):
     data = data.reshape((-1, iter_loadtxt.rowlength))
     return data
 
+def loadPoints(file, num_points, use_pca, use_intensity):
+    with open(file) as f:
+        data = np.loadtxt(f)
+
+    pts_cols = [0, 1, 2]
+    lab_col = 3
+    if use_pca:
+        pts_cols += [3, 4, 5]
+    if use_intensity:
+        pts_cols += [6]
+
+    return data[:, pts_cols]
+
 def loadPointsAndLabels(f,num_points,use_pca,use_intensity):
     path = os.path.dirname(os.path.realpath(__file__))
     #print("   reading file ",f)
