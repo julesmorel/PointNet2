@@ -171,6 +171,23 @@ Edit train.sh to setup the parameters, then run:
 ./train.sh
 ```
 
+-----------------
+## Classification
+
+Once the DTM has been computed and the trees isolated, the classification can be assigned to the input .laz files by running the following command:
+```bash
+./classify.sh LAZ_FILES DTM_TIF TREES_ASCII
+```
+Where:
+* LAZ_FILES is a glob that lists all the input .laz files
+* DTM_TIF is a raster file storing the DTM
+* TREES_ASCII is an ASCII file containing the point clouds of every isolated trees
+
+We use for instance:
+```bash
+./classify.sh ~/Data/LiDAR/GEDI/GEDI009/211011_gedi_090* ~/Data/LiDAR/GEDI/GEDI009/dtm.tif ~/Data/LiDAR/GEDI/GEDI009/alltrees.xyz
+```
+
 ## Acknowledgement
 * [charlesq34/pointnet2](https://github.com/charlesq34/pointnet2): Paper author and official code repo.
 * [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch): Initial work of PyTorch implementation of PointNet++.
