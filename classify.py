@@ -74,8 +74,6 @@ def classify(las_list, dtm_tif, tree_list, limit_z, distance_wood, bbox):
 
     las_list = [Path(f) for f in literal_eval(las_list)]
     tree_list = [Path(f) for f in literal_eval(tree_list)]
-    print(las_list)
-    print(tree_list)
 
     with tempfile.TemporaryDirectory() as tempdir:
         tmpdir = Path(tempdir)
