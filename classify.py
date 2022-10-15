@@ -70,7 +70,7 @@ logger = logging.getLogger('slim')
 @click.option('--distance_wood', type=float, default=0.03, help='The distance threshold for the wood classification')
 @click.option('--bbox', type=str, default="([-20,20],[-20,20])", help='The bounding box considered for the crop in the format: ([XMIN,XMAX],[YMIN,YMAX])')
 def classify(las_list, dtm_tif, tree_list, limit_z, distance_wood, bbox):
-    """"Assign class=2 to the ground points, class=3 to the wood points and class=1 to the remaining point in the .laz files provided"""
+    """Assign class=2 to the ground points, class=3 to the wood points and class=1 to the remaining point in the .laz files provided"""
 
     las_list = [Path(f) for f in literal_eval(las_list)]
     tree_list = [Path(f) for f in literal_eval(tree_list)]
