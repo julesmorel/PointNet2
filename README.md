@@ -93,7 +93,7 @@ Besides the set LiDAR files, this approach takes also as input the digital terra
 The implementation is made of the following steps:
 
 - For each LiDAR scan of the forest plot:
-1. the point cloud is subsampled and cropped it to the desired extent
+1. the point cloud is cropped to the desired extent then subsampled
 2. The points below a given threshold Zmin are filtered out.
 3. The remaining points are tilled into fixed size tiles in order to limit memory consumption.
 4. For each tile, the segmentation occurs. Then, the results of each tile are merged back together.
