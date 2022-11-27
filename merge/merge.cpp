@@ -91,10 +91,14 @@ int main(int argc, char *argv[]){
     ptsOut=ptsFiltered;
   }
 
+  //Retrieveing the offset and applying it back to the result file
+  offsetManager offsetM(filenameOut);
+  double offset_x = offsetM.getOffsetX();
+  double offset_y = offsetM.getOffsetY();
   std::ofstream outfile;
   outfile.open(filenameOut, std::ios_base::app);
   for(int i=0;i<ptsOut.size();i++){
     pcl::PointXYZI currentPt = ptsOut.at(i);
-    outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<currentPt.intensity<<'\n';
+    outfile <<currentPt.x+offset_x<<" "<<currentPt.y+offset_y<<" "<<currentPt.z<<" "<<currentPt.intensity<<'\n';
   }
 }

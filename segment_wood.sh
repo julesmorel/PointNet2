@@ -65,7 +65,7 @@ if [ "$#" -ge  3 ]; then
             counterfile=$dir_tile/${root_tile}_counter.asc
             $scriptsroot/prediction/prediction $tile $chunkedfile $counterfile $R_PCA $BATCH_DELTA $BATCH_SIZE
             predfile=$dir_tile/${root_tile}_prediction.asc
-            python3 $scriptsroot/deepNetwork/predict.py -i ../$chunkedfile -o $predfile -model $model_path -num_points $BATCH_SIZE --use_pca
+            python3 $scriptsroot/deepNetwork/predict.py -i $chunkedfile -o $predfile -model $model_path -num_points $BATCH_SIZE --use_pca
             resultfile=$dir_tile/${root_tile}_result.asc
             $scriptsroot/vote/aggregate $predfile $counterfile $resultfile
             listResultFiles+=($resultfile)
