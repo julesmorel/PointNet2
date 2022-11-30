@@ -26,6 +26,22 @@ void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::Point
     } 
 }
 
+void pointCloudFileReader::read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
+{    
+    //std::cout<<"Reading "<<filename<<std::endl;    
+    std::string extension = filename.substr(filename.find_last_of(".") + 1);   
+    if(extension == "las" || extension == "laz")
+    {
+      readLasFile(filename,points);
+    }
+    else if(extension == "xyz" || extension == "asc")
+    {
+      readAsciiFile(filename,points);
+    }else{
+      std::cout<<filename<<" is not in the correct format. Please provide .las, .laz or ASCII files"<<std::endl;
+    } 
+}
+
 void pointCloudFileReader::readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
 {
   pcl::PointCloud<pcl::PointXYZI> pts;
@@ -89,6 +105,43 @@ void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl
     double classification=point_view->getFieldAs<double>(Id::Classification, idx);
     double x = fieldX-offset_x;
     double y = fieldY-offset_y;
+    double z = fieldZ;
+    p.x=x;
+    p.y=y;
+    p.z=z;
+    p.intensity=classification;       
+    points.push_back(p);  
+  }
+}
+
+void pointCloudFileReader::readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points)
+{
+  //define the input file
+  pdal::Options options;
+  options.add("filename", filename);
+  pdal::PointTable table;
+  pdal::LasReader las_reader;
+  las_reader.setOptions(options);
+
+  las_reader.prepare(table);
+  pdal::PointViewSet point_view_set = las_reader.execute(table);
+  
+  //read the list of points
+  pdal::PointViewPtr point_view = *point_view_set.begin();
+  pdal::Dimension::IdList dims = point_view->dims();
+  pdal::LasHeader las_header = las_reader.header();
+
+  std::cout.precision(12);
+  
+  for (pdal::PointId idx = 0; idx < point_view->size(); ++idx) {  
+    using namespace pdal::Dimension;
+    pcl::PointXYZI p;
+    double fieldX=point_view->getFieldAs<double>(Id::X, idx);
+    double fieldY=point_view->getFieldAs<double>(Id::Y, idx);
+    double fieldZ=point_view->getFieldAs<double>(Id::Z, idx);
+    double classification=point_view->getFieldAs<double>(Id::Classification, idx);
+    double x = fieldX;
+    double y = fieldY;
     double z = fieldZ;
     p.x=x;
     p.y=y;

@@ -38,19 +38,21 @@ int main(int argc, char *argv[]){
   }
     
   //read the offset for the current file if it exists
-  offsetManager offsetM(filenameIn);
-  double offset_x = offsetM.getOffsetX();
-  double offset_y = offsetM.getOffsetY();
+  //offsetManager offsetM(filenameIn);
+  //double offset_x = offsetM.getOffsetX();
+  //double offset_y = offsetM.getOffsetY();
 
   //read the points in the file 
   pcl::PointCloud<pcl::PointXYZI> pts;   
-  pointCloudFileReader::read(filenameIn,pts,offset_x,offset_y);
+  //pointCloudFileReader::read(filenameIn,pts,offset_x,offset_y);
+  pointCloudFileReader::read(filenameIn,pts);
 
   //store of the offset if it was not stored before
-  offsetM.setOffset(offset_x,offset_y);
+  //offsetM.setOffset(offset_x,offset_y);
 
   pcl::PointCloud<pcl::PointXYZI> ptsWood;   
-  pointCloudFileReader::read(filenameWood,ptsWood,offset_x,offset_y);
+  //pointCloudFileReader::read(filenameWood,ptsWood,offset_x,offset_y);
+  pointCloudFileReader::read(filenameWood,ptsWood);
 
   pcl::KdTreeFLANN<pcl::PointXYZI> kdtree;
   kdtree.setInputCloud (ptsWood.makeShared());
@@ -78,8 +80,10 @@ int main(int argc, char *argv[]){
 
   for(int i=0;i<pts.size();i++){
     pcl::PointXYZI p = pts.at(i);
-    view->setField(pdal::Dimension::Id::X, i, p.x+offset_x);
-    view->setField(pdal::Dimension::Id::Y, i, p.y+offset_y);
+    //view->setField(pdal::Dimension::Id::X, i, p.x+offset_x);
+    //view->setField(pdal::Dimension::Id::Y, i, p.y+offset_y);
+    view->setField(pdal::Dimension::Id::X, i, p.x);
+    view->setField(pdal::Dimension::Id::Y, i, p.y);
     view->setField(pdal::Dimension::Id::Z, i, p.z);
     view->setField(pdal::Dimension::Id::Classification, i, p.intensity);
   }

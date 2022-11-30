@@ -7,4 +7,7 @@ public:
     static void read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y);   
     static void readAsciiFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points); 
     static void readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points, double& offset_x, double& offset_y); 
+
+    static void read(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points);   
+    static void readLasFile(std::string filename, pcl::PointCloud<pcl::PointXYZI>& points); 
 };

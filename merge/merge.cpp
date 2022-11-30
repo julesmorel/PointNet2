@@ -69,16 +69,17 @@ int main(int argc, char *argv[]){
   for(int i=0;i<filenames.size();i++){
     
     //read the offset for the current file if it exists
-    offsetManager offsetM(filenames.at(i));
-    double offset_x = offsetM.getOffsetX();
-    double offset_y = offsetM.getOffsetY();
+    //offsetManager offsetM(filenames.at(i));
+    //double offset_x = offsetM.getOffsetX();
+    //double offset_y = offsetM.getOffsetY();
 
     //read the points in the file 
     pcl::PointCloud<pcl::PointXYZI> pts;   
-    pointCloudFileReader::read(filenames.at(i),pts,offset_x,offset_y);
+    //pointCloudFileReader::read(filenames.at(i),pts,offset_x,offset_y);
+    pointCloudFileReader::read(filenames.at(i),pts);
 
     //store of the offset if it was not stored before
-    offsetM.setOffset(offset_x,offset_y);
+    //offsetM.setOffset(offset_x,offset_y);
 
     //concatenate the points  
     ptsOut+=pts;
@@ -99,6 +100,7 @@ int main(int argc, char *argv[]){
   outfile.open(filenameOut, std::ios_base::app);
   for(int i=0;i<ptsOut.size();i++){
     pcl::PointXYZI currentPt = ptsOut.at(i);
-    outfile <<currentPt.x+offset_x<<" "<<currentPt.y+offset_y<<" "<<currentPt.z<<" "<<currentPt.intensity<<'\n';
+    //outfile <<currentPt.x+offset_x<<" "<<currentPt.y+offset_y<<" "<<currentPt.z<<" "<<currentPt.intensity<<'\n';
+    outfile <<currentPt.x<<" "<<currentPt.y<<" "<<currentPt.z<<" "<<currentPt.intensity<<'\n';
   }
 }

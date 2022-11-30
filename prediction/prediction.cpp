@@ -54,16 +54,17 @@ int main(int argc, char *argv[]){
   pcl::PointCloud<pcl::PointXYZI> points;
     
   //read the offset for the current file if it exists
-  offsetManager offsetM(filenameIn);
-  double offset_x = offsetM.getOffsetX();
-  double offset_y = offsetM.getOffsetY();
+  //offsetManager offsetM(filenameIn);
+  //double offset_x = offsetM.getOffsetX();
+  //double offset_y = offsetM.getOffsetY();
 
   //read the points in the file 
-  pointCloudFileReader::read(filenameIn,points,offset_x,offset_y);
+  //pointCloudFileReader::read(filenameIn,points,offset_x,offset_y);
+  pointCloudFileReader::read(filenameIn,points);
   //std::cout<<"Input point cloud: "<<points.size()<<" points"<<std::endl;
 
   //store of the offset if it was not stored before
-  offsetM.setOffset(offset_x,offset_y);
+  //offsetM.setOffset(offset_x,offset_y);
 
   //Compute the PCA
   pcl::KdTreeFLANN<pcl::PointXYZI> kdtreePCA;
